@@ -2,6 +2,7 @@ import { signOut } from "firebase/auth";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
+import { useAuthValue } from "../AuthContext";
 import styled from 'styled-components';
 
 const StyledList = styled.ul`
@@ -20,6 +21,8 @@ const StyledList = styled.ul`
 `;
 
 export default function Navbar() {
+  const { currentUser } = useAuthValue();
+  console.log("User read in navbar: ", currentUser);
   const navigate = useNavigate();
 
   const handleLogout = () => {

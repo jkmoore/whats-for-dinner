@@ -1,30 +1,43 @@
-import React from 'react';
-import Inventory from './pages/Inventory.tsx';
-import Recipes from './pages/Recipes.tsx';
-import AccountSettings from './pages/AccountSettings.tsx';
-import Signup from './pages/Signup.tsx';
-import Login from './pages/Login.tsx';
-import { BrowserRouter } from 'react-router-dom';
-import { Navigate, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar.tsx';
- 
+import React, { useEffect, useState } from "react";
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { AuthProvider } from "./AuthContext";
+import Inventory from "./pages/Inventory.tsx";
+import Recipes from "./pages/Recipes.tsx";
+import AccountSettings from "./pages/AccountSettings.tsx";
+import Signup from "./pages/Signup.tsx";
+import Login from "./pages/Login.tsx";
+import { BrowserRouter } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar.tsx";
+
 function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+  }, []);
+
   return (
     <BrowserRouter>
-      <div>
-        <Navbar />
-        <section>                              
+      <AuthProvider value={{ currentUser }}>
+        <div>
+          {currentUser && <Navbar />}
+          <section>
             <Routes>
-                <Route path="/inventory" element={<Inventory/>}/>
-                <Route path="/recipes" element={<Recipes/>}/>
-                <Route path="/accountsettings" element={<AccountSettings/>}/>
-                <Route path="/signup" element={<Signup/>}/>
-                <Route path="/login" element={<Login/>}/>
-            </Routes>                    
-        </section>
-      </div>
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/recipes" element={<Recipes />} />
+              <Route path="/accountsettings" element={<AccountSettings />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/login" element={<Login />} />
+            </Routes>
+          </section>
+        </div>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
- 
+
 export default App;
