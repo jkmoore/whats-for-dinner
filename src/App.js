@@ -7,6 +7,7 @@ import Recipes from "./pages/Recipes.tsx";
 import AccountSettings from "./pages/AccountSettings.tsx";
 import Signup from "./pages/Signup.tsx";
 import Login from "./pages/Login.tsx";
+import PrivateRoute from "./PrivateRoute";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.tsx";
@@ -27,9 +28,30 @@ function App() {
           {currentUser && <Navbar />}
           <section>
             <Routes>
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/recipes" element={<Recipes />} />
-              <Route path="/accountsettings" element={<AccountSettings />} />
+              <Route
+                path="/inventory"
+                element={
+                  <PrivateRoute>
+                    <Inventory />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/recipes"
+                element={
+                  <PrivateRoute>
+                    <Recipes />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/accountsettings"
+                element={
+                  <PrivateRoute>
+                    <AccountSettings />
+                  </PrivateRoute>
+                }
+              />
               <Route path="/signup" element={<Signup />} />
               <Route path="/login" element={<Login />} />
             </Routes>
