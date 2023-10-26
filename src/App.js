@@ -12,6 +12,7 @@ import LoggedOutRoute from "./LoggedOutRoute";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.tsx";
+import NotFound from "./pages/NotFound.tsx";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -69,6 +70,7 @@ function App() {
                   </LoggedOutRoute>
                 }
               />
+              <Route path="*" element={<NotFound />}/>
             </Routes>
           </section>
         </div>
