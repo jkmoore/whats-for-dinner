@@ -8,6 +8,7 @@ import AccountSettings from "./pages/AccountSettings.tsx";
 import Signup from "./pages/Signup.tsx";
 import Login from "./pages/Login.tsx";
 import PrivateRoute from "./PrivateRoute";
+import LoggedOutRoute from "./LoggedOutRoute";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.tsx";
@@ -52,8 +53,22 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/login" element={<Login />} />
+              <Route
+                path="/signup"
+                element={
+                  <LoggedOutRoute>
+                    <Signup />
+                  </LoggedOutRoute>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <LoggedOutRoute>
+                    <Login />
+                  </LoggedOutRoute>
+                }
+              />
             </Routes>
           </section>
         </div>
