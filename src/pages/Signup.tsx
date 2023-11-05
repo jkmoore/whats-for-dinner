@@ -24,8 +24,9 @@ export default function Signup() {
     <div>
       <form>
         <div>
-          <label>Email address</label>
+          <label htmlFor="email-address">Email address</label>
           <input
+            id="email-address"
             type="email"
             value={email}
             required
@@ -34,8 +35,9 @@ export default function Signup() {
           />
         </div>
         <div>
-          <label>Password</label>
+          <label htmlFor="password">Password</label>
           <input
+            id="password"
             type="password"
             value={password}
             required

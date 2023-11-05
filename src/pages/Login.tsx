@@ -24,7 +24,7 @@ export default function Login() {
     <div>
       <form>
         <div>
-          <label>Email address</label>
+          <label htmlFor="email-address">Email address</label>
           <input
             id="email-address"
             name="email"
@@ -35,7 +35,7 @@ export default function Login() {
           />
         </div>
         <div>
-          <label>Password</label>
+          <label htmlFor="password">Password</label>
           <input
             id="password"
             name="password"
