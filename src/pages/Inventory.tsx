@@ -90,7 +90,7 @@ export default function Inventory() {
       </form>
       <ul>
         {inventory.map((item, index) => (
-          <li key={index}>
+          <li key={item.id}>
             {item.name}
             <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
           </li>
