@@ -22,7 +22,10 @@ export default function Inventory() {
   const user = auth.currentUser;
 
   const handleAddItem = () => {
-    addDoc(collection(firestore, "inventory"), { ...newItem, userId: user?.uid })
+    addDoc(collection(firestore, "inventory"), {
+      ...newItem,
+      userId: user?.uid,
+    })
       .then(() => {
         setNewItem({
           name: "",
@@ -33,15 +36,17 @@ export default function Inventory() {
       });
   };
 
-  const handleDeleteItem = async (itemId) => {
+  const handleDeleteItem = async (itemId: string | undefined) => {
     try {
       const itemRef = doc(collection(firestore, "inventory"), itemId);
       await deleteDoc(itemRef);
-      setInventory((prevInventory) => prevInventory.filter((item) => item.id !== itemId));
+      setInventory((prevInventory) =>
+        prevInventory.filter((item) => item.id !== itemId)
+      );
     } catch (error) {
       console.error("Error deleting item:", error);
     }
-  }
+  };
 
   useEffect(() => {
     const inventoryRef = query(
