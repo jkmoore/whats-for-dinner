@@ -13,16 +13,16 @@ import {
 
 export default function Inventory() {
   const [inventory, setInventory] = useState<DocumentData[]>([]);
-  const [item, setItem] = useState({
+  const [newItem, setNewItem] = useState({
     name: "",
   });
 
   const user = auth.currentUser;
 
   const handleAddItem = () => {
-    addDoc(collection(firestore, "inventory"), { ...item, userId: user?.uid })
+    addDoc(collection(firestore, "inventory"), { ...newItem, userId: user?.uid })
       .then(() => {
-        setItem({
+        setNewItem({
           name: "",
         });
       })
@@ -61,8 +61,8 @@ export default function Inventory() {
         <input
           type="text"
           placeholder="Item Name"
-          value={item.name}
-          onChange={(e) => setItem({ ...item, name: e.target.value })}
+          value={newItem.name}
+          onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
         />
         <button type="button" onClick={handleAddItem}>
           Add Item
