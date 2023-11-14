@@ -46,6 +46,9 @@ export default function Inventory() {
           items.push(item);
         });
         setInventory(items);
+      },
+      (error) => {
+        console.error("Error fetching inventory:", error);
       }
     );
 
