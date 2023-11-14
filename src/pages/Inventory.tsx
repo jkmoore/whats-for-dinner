@@ -97,7 +97,7 @@ export default function Inventory() {
         <p>Loading...</p>
       ) : (
         <ul>
-          {inventory.map((item, index) => (
+          {inventory.map((item) => (
             <li key={item.id}>
               {item.name}
               <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
