@@ -6,6 +6,8 @@ import {
   QuerySnapshot,
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   onSnapshot,
   query,
   where,
@@ -31,6 +33,16 @@ export default function Inventory() {
       });
   };
 
+  const handleDeleteItem = async (itemId) => {
+    try {
+      const itemRef = doc(collection(firestore, "inventory"), itemId);
+      await deleteDoc(itemRef);
+      setInventory((prevInventory) => prevInventory.filter((item) => item.id !== itemId));
+    } catch (error) {
+      console.error("Error deleting item:", error);
+    }
+  }
+
   useEffect(() => {
     const inventoryRef = query(
       collection(firestore, "inventory"),
@@ -42,7 +54,7 @@ export default function Inventory() {
       (querySnapshot: QuerySnapshot<DocumentData>) => {
         const items: DocumentData[] = [];
         querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-          const item = doc.data();
+          const item = { id: doc.id, ...doc.data() };
           items.push(item);
         });
         setInventory(items);
@@ -73,7 +85,10 @@ export default function Inventory() {
       </form>
       <ul>
         {inventory.map((item, index) => (
-          <li key={index}>{item.name}</li>
+          <li key={index}>
+            {item.name}
+            <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
+          </li>
         ))}
       </ul>
     </div>
