@@ -77,7 +77,7 @@ export default function Inventory() {
   return (
     <div>
       <h1>Inventory</h1>
-      <form>
+      <form onSubmit={(e) => { e.preventDefault(); handleAddItem(); }}>
         <input
           type="text"
           placeholder="Item Name"
