@@ -77,7 +77,12 @@ export default function Inventory() {
   return (
     <div>
       <h1>Inventory</h1>
-      <form onSubmit={(e) => { e.preventDefault(); handleAddItem(); }}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleAddItem();
+        }}
+      >
         <input
           type="text"
           placeholder="Item Name"
@@ -88,14 +93,18 @@ export default function Inventory() {
           Add Item
         </button>
       </form>
-      <ul>
-        {inventory.map((item, index) => (
-          <li key={item.id}>
-            {item.name}
-            <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      {inventory.length === 0 ? (
+        <p>Loading...</p>
+      ) : (
+        <ul>
+          {inventory.map((item, index) => (
+            <li key={item.id}>
+              {item.name}
+              <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
