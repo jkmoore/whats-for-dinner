@@ -3,7 +3,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { useAuthValue } from "../AuthContext";
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const StyledList = styled.ul`
   display: flex;

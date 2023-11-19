@@ -70,7 +70,7 @@ function App() {
                   </LoggedOutRoute>
                 }
               />
-              <Route path="*" element={<NotFound />}/>
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </section>
         </div>

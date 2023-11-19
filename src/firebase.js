@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth  } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -14,7 +14,7 @@ const firebaseConfig = {
   storageBucket: "whats-for-dinner-26f01.appspot.com",
   messagingSenderId: "836493515880",
   appId: "1:836493515880:web:20e325c200e91738502fdd",
-  measurementId: "G-BQ6FM4B466"
+  measurementId: "G-BQ6FM4B466",
 };
 
 // Initialize Firebase and Firebase Authentication

@@ -45,7 +45,9 @@ export default function Signup() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button type="submit" onClick={onSubmit}>Sign up</button>
+        <button type="submit" onClick={onSubmit}>
+          Sign up
+        </button>
       </form>
       <p>
         Already have an account? <NavLink to="/login">Sign in</NavLink>
