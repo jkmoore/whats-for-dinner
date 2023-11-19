@@ -12,14 +12,19 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import { User } from "firebase/auth";
+
+interface Item {
+  name: string,
+}
 
 export default function Inventory() {
   const [inventory, setInventory] = useState<DocumentData[]>([]);
-  const [newItem, setNewItem] = useState({
+  const [newItem, setNewItem] = useState<Item>({
     name: "",
   });
 
-  const user = auth.currentUser;
+  const user: User | null = auth.currentUser;
 
   const handleAddItem = () => {
     addDoc(collection(firestore, "inventory"), {
