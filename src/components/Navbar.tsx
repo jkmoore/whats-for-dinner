@@ -1,29 +1,65 @@
 import { signOut } from "firebase/auth";
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, LinkProps, useLocation, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
-import { useAuthValue } from "../AuthContext";
 import styled from "styled-components";
 
+interface StyledLinkProps extends LinkProps {
+  isActive?: boolean;
+}
+
+const StyledContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid #d9d9d9;
+`;
+
 const StyledList = styled.ul`
+  width: 50rem;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: flex-end;
   list-style-type: none;
-  a {
-    text-decoration: none;
-    color: black;
-  }
   p {
     margin-block-start: 0;
     margin-block-end: 0;
   }
+  margin-bottom: 0rem;
+  margin-top: 1.5rem;
+`;
+
+const StyledLink = styled(Link)<StyledLinkProps>`
+  text-decoration: none;
+  font-size: 1.1rem;
+  color: ${(props) => (props.isActive ? "#D30000" : "black")};
+  border-bottom: ${(props) =>
+    props.isActive ? "0.25rem solid #D30000" : "0.25rem solid transparent"};
+  &:hover {
+    color: #D30000;
+  }
+  padding: 0.25rem;
+  display: inline-block;
+`;
+
+const StyledButton = styled.button`
+  border: none;
+  background-color: transparent;
+  color: grey;
+  cursor: pointer;
+  padding: 0.5rem;
 `;
 
 export default function Navbar() {
-  const { currentUser } = useAuthValue();
-  console.log("User read in navbar: ", currentUser);
+  const location = useLocation();
+  const currentPath = location.pathname;
   const navigate = useNavigate();
+
+  const navLinks = [
+    { path: "/inventory", text: "INVENTORY" },
+    { path: "/recipes", text: "RECIPES" },
+    { path: "/accountSettings", text: "ACCOUNT SETTINGS" },
+  ];
 
   const handleLogout = () => {
     signOut(auth)
@@ -37,21 +73,23 @@ export default function Navbar() {
   };
 
   return (
-    <div>
+    <StyledContainer>
       <StyledList>
+        <img
+          src={process.env.PUBLIC_URL + "/logoNavbar.svg"}
+          alt="What's for Dinner?"
+        />
+        {navLinks.map((link) => (
+          <li key={link.path}>
+            <StyledLink to={link.path} isActive={link.path === currentPath}>
+              {link.text}
+            </StyledLink>
+          </li>
+        ))}
         <li>
-          <Link to="/inventory">Inventory</Link>
-        </li>
-        <li>
-          <Link to="/recipes">Recipes</Link>
-        </li>
-        <li>
-          <Link to="/accountsettings">Account Settings</Link>
-        </li>
-        <li>
-          <button onClick={handleLogout}>Logout</button>
+          <StyledButton onClick={handleLogout}>Log Out</StyledButton>
         </li>
       </StyledList>
-    </div>
+    </StyledContainer>
   );
 }
