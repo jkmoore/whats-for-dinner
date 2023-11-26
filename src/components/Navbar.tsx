@@ -8,7 +8,7 @@ interface StyledLinkProps extends LinkProps {
   isActive?: boolean;
 }
 
-const StyledContainer = styled.div`
+const StyledDiv = styled.div`
   display: flex;
   justify-content: center;
   border-bottom: 1px solid #d9d9d9;
@@ -73,7 +73,7 @@ export default function Navbar() {
   };
 
   return (
-    <StyledContainer>
+    <StyledDiv>
       <StyledList>
         <img
           src={process.env.PUBLIC_URL + "/logoNavbar.svg"}
@@ -90,6 +90,6 @@ export default function Navbar() {
           <StyledButton onClick={handleLogout}>Log Out</StyledButton>
         </li>
       </StyledList>
-    </StyledContainer>
+    </StyledDiv>
   );
 }
