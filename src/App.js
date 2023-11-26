@@ -13,6 +13,15 @@ import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import styled from "styled-components";
+
+const StyledSection = styled.section`
+  background-color: #f2f2f2;
+  background-image: linear-gradient(#f2f2f2, white);
+  * {
+    margin-top: 0rem;
+  }
+`;
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -28,7 +37,7 @@ function App() {
       <AuthProvider value={{ currentUser }}>
         <div>
           {currentUser && <Navbar />}
-          <section>
+          <StyledSection>
             <Routes>
               <Route
                 path="/inventory"
@@ -72,7 +81,7 @@ function App() {
               />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </section>
+          </StyledSection>
         </div>
       </AuthProvider>
     </BrowserRouter>
