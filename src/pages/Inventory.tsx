@@ -15,10 +15,11 @@ import {
 import { User } from "firebase/auth";
 
 interface Item {
-  name: string,
+  name: string;
 }
 
 export default function Inventory() {
+  const [loading, setLoading] = useState(true);
   const [inventory, setInventory] = useState<DocumentData[]>([]);
   const [newItem, setNewItem] = useState<Item>({
     name: "",
@@ -59,6 +60,8 @@ export default function Inventory() {
       where("userId", "==", user?.uid)
     );
 
+    setLoading(true);
+
     const unsubscribe = onSnapshot(
       inventoryRef,
       (querySnapshot: QuerySnapshot<DocumentData>) => {
@@ -68,6 +71,7 @@ export default function Inventory() {
           items.push(item);
         });
         setInventory(items);
+        setLoading(false);
       },
       (error) => {
         console.error("Error fetching inventory:", error);
@@ -98,8 +102,10 @@ export default function Inventory() {
           Add Item
         </button>
       </form>
-      {inventory.length === 0 ? (
+      {loading ? (
         <p>Loading...</p>
+      ) : inventory.length === 0 ? (
+        <p>No items in the inventory.</p>
       ) : (
         <ul>
           {inventory.map((item) => (
