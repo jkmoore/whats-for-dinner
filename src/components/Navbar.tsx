@@ -1,12 +1,8 @@
 import { signOut } from "firebase/auth";
 import React from "react";
-import { Link, LinkProps, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import styled from "styled-components";
-
-interface StyledLinkProps extends LinkProps {
-  isActive?: boolean;
-}
 
 const StyledDiv = styled.div`
   display: flex;
@@ -29,12 +25,12 @@ const StyledList = styled.ul`
   margin-top: 1.5rem;
 `;
 
-const StyledLink = styled(Link)<StyledLinkProps>`
+const StyledLink = styled(Link)<{ $isActive: boolean }>`
   text-decoration: none;
   font-size: 1.1rem;
-  color: ${(props) => (props.isActive ? "#D30000" : "black")};
+  color: ${(props) => (props.$isActive ? "#D30000" : "black")};
   border-bottom: ${(props) =>
-    props.isActive ? "0.25rem solid #D30000" : "0.25rem solid transparent"};
+    props.$isActive ? "0.25rem solid #D30000" : "0.25rem solid transparent"};
   &:hover {
     color: #D30000;
   }
@@ -81,7 +77,7 @@ export default function Navbar() {
         />
         {navLinks.map((link) => (
           <li key={link.path}>
-            <StyledLink to={link.path} isActive={link.path === currentPath}>
+            <StyledLink to={link.path} $isActive={link.path === currentPath}>
               {link.text}
             </StyledLink>
           </li>
