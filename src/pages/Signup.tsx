@@ -31,6 +31,7 @@ export default function Signup() {
             value={email}
             required
             placeholder="Email address"
+            autoComplete="off"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           />
         </div>
@@ -42,6 +43,7 @@ export default function Signup() {
             value={password}
             required
             placeholder="Password"
+            autoComplete="off"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           />
         </div>

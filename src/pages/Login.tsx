@@ -31,6 +31,7 @@ export default function Login() {
             type="email"
             required
             placeholder="Email address"
+            autoComplete="email"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           />
         </div>
@@ -42,6 +43,7 @@ export default function Login() {
             type="password"
             required
             placeholder="Password"
+            autoComplete="current-password"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           />
         </div>
