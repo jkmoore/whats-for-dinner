@@ -9,6 +9,7 @@ import {
   deleteDoc,
   doc,
   onSnapshot,
+  orderBy,
   query,
   where,
 } from "firebase/firestore";
@@ -19,7 +20,8 @@ interface Item {
 }
 
 export default function Inventory() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [maxOrder, setMaxOrder] = useState<number>(0);
   const [inventory, setInventory] = useState<DocumentData[]>([]);
   const [newItem, setNewItem] = useState<Item>({
     name: "",
@@ -30,6 +32,7 @@ export default function Inventory() {
   const handleAddItem = () => {
     addDoc(collection(firestore, "inventory"), {
       ...newItem,
+      order: maxOrder + 1,
       userId: user?.uid,
     })
       .then(() => {
@@ -57,6 +60,7 @@ export default function Inventory() {
   useEffect(() => {
     const inventoryRef = query(
       collection(firestore, "inventory"),
+      orderBy("order"),
       where("userId", "==", user?.uid)
     );
 
@@ -71,6 +75,9 @@ export default function Inventory() {
           items.push(item);
         });
         setInventory(items);
+        const currentMaxOrder =
+          items.length > 0 ? items[items.length - 1].order : 0;
+        setMaxOrder(currentMaxOrder);
         setLoading(false);
       },
       (error) => {
@@ -95,7 +102,9 @@ export default function Inventory() {
           type="text"
           placeholder="Item Name"
           value={newItem.name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewItem({ ...newItem, name: e.target.value })}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setNewItem({ ...newItem, name: e.target.value })
+          }
         />
         <button type="button" onClick={handleAddItem}>
           Add Item
