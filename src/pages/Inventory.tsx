@@ -85,9 +85,8 @@ export default function Inventory() {
 
   return (
     <div>
-      <h1>Inventory</h1>
       <form
-        onSubmit={(e) => {
+        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           handleAddItem();
         }}
@@ -96,7 +95,7 @@ export default function Inventory() {
           type="text"
           placeholder="Item Name"
           value={newItem.name}
-          onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewItem({ ...newItem, name: e.target.value })}
         />
         <button type="button" onClick={handleAddItem}>
           Add Item
