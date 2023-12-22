@@ -94,6 +94,12 @@ export default function Inventory() {
           {inventory.map((item) => (
             <li key={item.id}>
               {item.name}
+              {item.expiration && (
+                <span>
+                  {' - '}
+                  {item.expiration.toDate().toISOString().split('T')[0]}
+                </span>
+              )}
               <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
             </li>
           ))}

@@ -25,14 +25,21 @@ const ModalWindow = styled.div`
   box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.04);
 `;
 
+const StyledForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
 interface ModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onAddItem: (item: Item) => void;
 }
 
-export default function InventoryModal({ setIsOpen, onAddItem }: ModalProps) {
+export default function Modal({ setIsOpen, onAddItem }: ModalProps) {
   const [newItem, setNewItem] = useState<Item>({
     name: "",
+    expiration: null,
   });
 
   const handleAddItem = (setIsOpen: React.Dispatch<React.SetStateAction<boolean>>, onAddItem: (item: Item) => void) => {
@@ -44,8 +51,8 @@ export default function InventoryModal({ setIsOpen, onAddItem }: ModalProps) {
     <>
       <Background onClick={() => setIsOpen(false)} />
       <ModalWindow>
-        New Item
-        <form
+        <h2>New Item</h2>
+        <StyledForm
           onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
             handleAddItem(setIsOpen, onAddItem);
@@ -61,8 +68,20 @@ export default function InventoryModal({ setIsOpen, onAddItem }: ModalProps) {
               setNewItem({ ...newItem, name: e.target.value })
             }
           />
+          <label htmlFor="expiration">Expiration Date</label>
+          <input
+            type="date"
+            id="expiration"
+            value={newItem.expiration ? newItem.expiration.toISOString().split('T')[0] : ""}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setNewItem((prevItem) => ({
+                ...prevItem,
+                expiration: new Date(e.target.value),
+              }))
+            }
+          />
           <button type="submit">Add Item</button>
-        </form>
+        </StyledForm>
       </ModalWindow>
     </>
   );
