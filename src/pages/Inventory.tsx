@@ -14,32 +14,23 @@ import {
   where,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
-
-interface Item {
-  name: string;
-}
+import InventoryModal from "../components/InventoryModal";
+import Item from "../components/item";
 
 export default function Inventory() {
   const [loading, setLoading] = useState<boolean>(true);
   const [maxOrder, setMaxOrder] = useState<number>(0);
   const [inventory, setInventory] = useState<DocumentData[]>([]);
-  const [newItem, setNewItem] = useState<Item>({
-    name: "",
-  });
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   const user: User | null = auth.currentUser;
 
-  const handleAddItem = () => {
+  const handleAddItem = (newItem: Item) => {
     addDoc(collection(firestore, "inventory"), {
       ...newItem,
       order: maxOrder + 1,
       userId: user?.uid,
     })
-      .then(() => {
-        setNewItem({
-          name: "",
-        });
-      })
       .catch((error) => {
         console.error("Error adding item:", error);
       });
@@ -92,24 +83,8 @@ export default function Inventory() {
 
   return (
     <div>
-      <form
-        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          handleAddItem();
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Item Name"
-          value={newItem.name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setNewItem({ ...newItem, name: e.target.value })
-          }
-        />
-        <button type="button" onClick={handleAddItem}>
-          Add Item
-        </button>
-      </form>
+      <button onClick={() => setShowModal(true)}>Add Item</button>
+      {showModal && <InventoryModal setIsOpen={setShowModal} onAddItem={handleAddItem} />}
       {loading ? (
         <p>Loading...</p>
       ) : inventory.length === 0 ? (
