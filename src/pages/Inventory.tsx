@@ -11,21 +11,35 @@ import {
   onSnapshot,
   orderBy,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
 import InventoryModal from "../components/InventoryModal";
 import Item from "../components/item";
 
+type ModalMode = "add" | "edit";
+
 export default function Inventory() {
   const [loading, setLoading] = useState<boolean>(true);
   const [maxOrder, setMaxOrder] = useState<number>(0);
   const [inventory, setInventory] = useState<DocumentData[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [modalMode, setModalMode] = useState<ModalMode>("add");
+  const [itemToEdit, setItemToEdit] = useState<string | null>(null);
 
   const user: User | null = auth.currentUser;
 
-  const handleAddItem = (newItem: Item) => {
+  const handleSubmitItem = (newItem: Item) => {
+    if (modalMode === "add") {
+      handleAddItem(newItem);
+    }
+    else {
+      handleEditItem(newItem);
+    }
+  }
+
+  const handleAddItem = async (newItem: Item) => {
     addDoc(collection(firestore, "inventory"), {
       ...newItem,
       order: maxOrder + 1,
@@ -34,6 +48,20 @@ export default function Inventory() {
       .catch((error) => {
         console.error("Error adding item:", error);
       });
+  };
+
+  const handleEditItem = async (newItem: Item) => {
+    try {
+      if (itemToEdit) {
+        await updateDoc(doc(firestore, "inventory", itemToEdit), { ...newItem });
+        setItemToEdit(null);
+      }
+      else {
+        console.error("Error updating item: item id is null");
+      }
+    } catch (error) {
+      console.error("Error updating item:", error);
+    }
   };
 
   const handleDeleteItem = async (itemId: string | undefined) => {
@@ -83,8 +111,10 @@ export default function Inventory() {
 
   return (
     <div>
-      <button onClick={() => setShowModal(true)}>Add Item</button>
-      {showModal && <InventoryModal setIsOpen={setShowModal} onAddItem={handleAddItem} />}
+      <button style={{ cursor: 'pointer' }} onClick={() => { setModalMode("add"); setShowModal(true); }}>
+        Add Item
+      </button>
+      {showModal && <InventoryModal setIsOpen={setShowModal} onSubmitItem={handleSubmitItem} mode={modalMode} />}
       {loading ? (
         <p>Loading...</p>
       ) : inventory.length === 0 ? (
@@ -92,7 +122,7 @@ export default function Inventory() {
       ) : (
         <ul>
           {inventory.map((item) => (
-            <li key={item.id}>
+            <li key={item.id} style={{ cursor: 'pointer' }} onClick={() => { setModalMode("edit"); setItemToEdit(item.id); setShowModal(true); }}>
               {item.name}
               {item.expiration && (
                 <span>
@@ -100,7 +130,9 @@ export default function Inventory() {
                   {item.expiration.toDate().toISOString().split('T')[0]}
                 </span>
               )}
-              <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
+              <button style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }}>
+                Delete
+              </button>
             </li>
           ))}
         </ul>

@@ -33,17 +33,18 @@ const StyledForm = styled.form`
 
 interface ModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  onAddItem: (item: Item) => void;
+  onSubmitItem: (item: Item) => void;
+  mode: "add" | "edit";
 }
 
-export default function Modal({ setIsOpen, onAddItem }: ModalProps) {
+export default function Modal({ setIsOpen, onSubmitItem, mode }: ModalProps) {
   const [newItem, setNewItem] = useState<Item>({
     name: "",
     expiration: null,
   });
 
-  const handleAddItem = (setIsOpen: React.Dispatch<React.SetStateAction<boolean>>, onAddItem: (item: Item) => void) => {
-    onAddItem(newItem);
+  const handleSubmitItem = (setIsOpen: React.Dispatch<React.SetStateAction<boolean>>, onSubmitItem: (item: Item) => void) => {
+    onSubmitItem(newItem);
     setIsOpen(false);
   }
 
@@ -51,11 +52,11 @@ export default function Modal({ setIsOpen, onAddItem }: ModalProps) {
     <>
       <Background onClick={() => setIsOpen(false)} />
       <ModalWindow>
-        <h2>New Item</h2>
+        <h2>{mode === "add" ? "New Item" : "Edit Item"}</h2>
         <StyledForm
           onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
-            handleAddItem(setIsOpen, onAddItem);
+            handleSubmitItem(setIsOpen, onSubmitItem);
           }}
         >
           <label htmlFor="item">Item</label>
@@ -69,6 +70,7 @@ export default function Modal({ setIsOpen, onAddItem }: ModalProps) {
             }
           />
           <label htmlFor="expiration">Expiration Date</label>
+          <style>{`input::-webkit-calendar-picker-indicator { cursor: pointer; }`}</style>
           <input
             type="date"
             id="expiration"
@@ -80,7 +82,7 @@ export default function Modal({ setIsOpen, onAddItem }: ModalProps) {
               }))
             }
           />
-          <button type="submit">Add Item</button>
+          <button style={{ cursor: 'pointer' }} type="submit">{mode === "add" ? "Add Item" : "Save Changes"}</button>
         </StyledForm>
       </ModalWindow>
     </>
