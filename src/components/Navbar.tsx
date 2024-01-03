@@ -64,7 +64,6 @@ export default function Navbar() {
     signOut(auth)
       .then(() => {
         navigate("/login");
-        console.log("Signed out successfully");
       })
       .catch((error) => {
         console.log(error);

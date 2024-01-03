@@ -12,7 +12,6 @@ export default function Login() {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log(userCredential.user);
         navigate("/inventory");
       })
       .catch((error) => {
