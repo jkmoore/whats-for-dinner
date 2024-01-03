@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Item from "./item";
 
@@ -36,14 +36,26 @@ const StyledForm = styled.form`
 interface ModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onSubmitItem: (item: Item) => void;
+  defaultData: Item | null;
   mode: "add" | "edit";
 }
 
-export default function Modal({ setIsOpen, onSubmitItem, mode }: ModalProps) {
+export default function Modal({ setIsOpen, onSubmitItem, defaultData, mode }: ModalProps) {
   const [newItem, setNewItem] = useState<Item>({
     name: "",
     expiration: null,
   });
+
+  useEffect(() => {
+    if (defaultData) {
+      if (defaultData.expiration) {
+        setNewItem({name: defaultData.name, expiration: defaultData.expiration});
+      }
+      else {
+        setNewItem({name: defaultData.name, expiration: null});
+      }
+    }
+  }, [defaultData]);
 
   const handleSubmitItem = (setIsOpen: React.Dispatch<React.SetStateAction<boolean>>, onSubmitItem: (item: Item) => void) => {
     onSubmitItem(newItem);

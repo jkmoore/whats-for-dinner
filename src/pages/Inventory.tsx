@@ -22,6 +22,7 @@ import styled from "styled-components";
 const AddItemButton = styled.img`
   height: 2rem;
   width: 2rem;
+  margin: 0.5rem 0;
   cursor: pointer;
   border-radius: 50%;
   box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
@@ -55,6 +56,7 @@ const StyledListItem = styled.li`
   margin: 0.5rem 0;
   box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
   list-style-type: none;
+  cursor: pointer;
 `;
 
 const StyledSpan = styled.span`
@@ -77,14 +79,22 @@ export default function Inventory() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<ModalMode>("add");
   const [itemToEdit, setItemToEdit] = useState<string | null>(null);
+  const [selectedItemData, setSelectedItemData] = useState<Item | null>(null);
 
   const user: User | null = auth.currentUser;
+
+  useEffect(() => {
+    if (showModal === false) {
+      setSelectedItemData(null);
+    }
+  }, [showModal]);
 
   const handleSubmitItem = (newItem: Item) => {
     if (modalMode === "add") {
       handleAddItem(newItem);
     }
     else {
+      setSelectedItemData(null);
       handleEditItem(newItem);
     }
   }
@@ -126,6 +136,18 @@ export default function Inventory() {
     }
   };
 
+  const handleClickItem = (item: DocumentData) => {
+    setModalMode("edit");
+    setItemToEdit(item.id);
+    if (item.expiration) {
+      setSelectedItemData({ name: item.name, expiration: item.expiration.toDate() });
+    }
+    else {
+      setSelectedItemData({ name: item.name, expiration: null });
+    }
+    setShowModal(true);
+  }
+
   useEffect(() => {
     const inventoryRef = query(
       collection(firestore, "inventory"),
@@ -166,7 +188,7 @@ export default function Inventory() {
         alt="Add Item"
         onClick={() => { setModalMode("add"); setShowModal(true); }}
       />
-      {showModal && <InventoryModal setIsOpen={setShowModal} onSubmitItem={handleSubmitItem} mode={modalMode} />}
+      {showModal && <InventoryModal setIsOpen={setShowModal} onSubmitItem={handleSubmitItem} defaultData={selectedItemData} mode={modalMode} />}
       {loading ? (
         <p>Loading...</p>
       ) : inventory.length === 0 ? (
@@ -174,7 +196,7 @@ export default function Inventory() {
       ) : (
         <StyledList>
           {inventory.map((item) => (
-            <StyledListItem key={item.id} style={{ cursor: 'pointer' }} onClick={() => { setModalMode("edit"); setItemToEdit(item.id); setShowModal(true); }}>
+            <StyledListItem key={item.id} onClick={() => handleClickItem(item)}>
               <DeleteItemButton
                 src={process.env.PUBLIC_URL + "/buttonCheckItem.svg"}
                 alt="Remove Item"
@@ -186,7 +208,7 @@ export default function Inventory() {
                   {item.expiration.toDate().toISOString().split('T')[0]}
                 </StyledSpan>
               )}
-              
+
             </StyledListItem>
           ))}
         </StyledList>
