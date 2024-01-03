@@ -23,6 +23,9 @@ const StyledList = styled.ul`
   }
   margin-bottom: 0rem;
   margin-top: 1.5rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  padding: 0rem;
 `;
 
 const StyledLink = styled(Link)<{ $isActive: boolean }>`
