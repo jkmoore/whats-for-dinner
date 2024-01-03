@@ -65,6 +65,7 @@ export default function Modal({ setIsOpen, onSubmitItem, mode }: ModalProps) {
             id="item"
             placeholder="Item"
             value={newItem.name}
+            required
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setNewItem({ ...newItem, name: e.target.value })
             }
