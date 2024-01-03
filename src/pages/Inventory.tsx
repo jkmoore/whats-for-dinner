@@ -17,6 +17,56 @@ import {
 import { User } from "firebase/auth";
 import InventoryModal from "../components/InventoryModal";
 import Item from "../components/item";
+import styled from "styled-components";
+
+const AddItemButton = styled.img`
+  height: 2rem;
+  width: 2rem;
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
+  &:hover {
+    filter: brightness(95%);
+  }
+`;
+
+const DeleteItemButton = styled.img`
+  cursor: pointer;
+  border: none;
+  height: 1.2rem;
+  width: 1.2rem;
+  margin-right: 0.5rem;
+  opacity: 0.3;
+  &:hover {
+    opacity: 0.7;
+  }
+`;
+
+const StyledList = styled.ul`
+  padding: 0rem;
+`;
+
+const StyledListItem = styled.li`
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
+  list-style-type: none;
+`;
+
+const StyledSpan = styled.span`
+  margin: 0 1rem;
+`;
+
+const StyledDiv = styled.div`
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
+`;
 
 type ModalMode = "add" | "edit";
 
@@ -110,33 +160,37 @@ export default function Inventory() {
   }, [user?.uid]);
 
   return (
-    <div>
-      <button style={{ cursor: 'pointer' }} onClick={() => { setModalMode("add"); setShowModal(true); }}>
-        Add Item
-      </button>
+    <StyledDiv>
+      <AddItemButton
+        src={process.env.PUBLIC_URL + "/buttonAddItem.svg"}
+        alt="Add Item"
+        onClick={() => { setModalMode("add"); setShowModal(true); }}
+      />
       {showModal && <InventoryModal setIsOpen={setShowModal} onSubmitItem={handleSubmitItem} mode={modalMode} />}
       {loading ? (
         <p>Loading...</p>
       ) : inventory.length === 0 ? (
         <p>No items in the inventory.</p>
       ) : (
-        <ul>
+        <StyledList>
           {inventory.map((item) => (
-            <li key={item.id} style={{ cursor: 'pointer' }} onClick={() => { setModalMode("edit"); setItemToEdit(item.id); setShowModal(true); }}>
+            <StyledListItem key={item.id} style={{ cursor: 'pointer' }} onClick={() => { setModalMode("edit"); setItemToEdit(item.id); setShowModal(true); }}>
+              <DeleteItemButton
+                src={process.env.PUBLIC_URL + "/buttonCheckItem.svg"}
+                alt="Remove Item"
+                onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }}
+              />
               {item.name}
               {item.expiration && (
-                <span>
-                  {' - '}
+                <StyledSpan>
                   {item.expiration.toDate().toISOString().split('T')[0]}
-                </span>
+                </StyledSpan>
               )}
-              <button style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }}>
-                Delete
-              </button>
-            </li>
+              
+            </StyledListItem>
           ))}
-        </ul>
+        </StyledList>
       )}
-    </div>
+    </StyledDiv>
   );
 }
