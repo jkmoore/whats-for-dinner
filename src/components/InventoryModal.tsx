@@ -89,13 +89,16 @@ export default function Modal({ setIsOpen, onSubmitItem, defaultData, mode }: Mo
           <input
             type="date"
             id="expiration"
-            value={newItem.expiration ? newItem.expiration.toISOString().split('T')[0] : ""}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            min={ "1900-01-01" }
+            max={ "2099-12-31" }
+            value={newItem.expiration ? newItem.expiration.toISOString().slice(0, 10) : ""}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const enteredDate = e.target.value ? new Date(e.target.value) : null;
               setNewItem((prevItem) => ({
                 ...prevItem,
-                expiration: new Date(e.target.value),
-              }))
-            }
+                expiration: enteredDate,
+              }));
+            }}
           />
           <button style={{ cursor: 'pointer' }} type="submit">{mode === "add" ? "Add Item" : "Save Changes"}</button>
         </StyledForm>

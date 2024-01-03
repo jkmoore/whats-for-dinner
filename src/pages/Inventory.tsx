@@ -205,7 +205,7 @@ export default function Inventory() {
               {item.name}
               {item.expiration && (
                 <StyledSpan>
-                  {item.expiration.toDate().toISOString().split('T')[0]}
+                  {item.expiration.toDate().toISOString().slice(0, 10)}
                 </StyledSpan>
               )}
 
