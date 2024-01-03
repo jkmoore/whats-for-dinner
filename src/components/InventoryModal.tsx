@@ -9,6 +9,7 @@ const Background = styled.div`
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 900;
 `;
 
 const ModalWindow = styled.div`
@@ -23,6 +24,7 @@ const ModalWindow = styled.div`
   color: black;
   border-radius: 16px;
   box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.04);
+  z-index: 1000;
 `;
 
 const StyledForm = styled.form`
