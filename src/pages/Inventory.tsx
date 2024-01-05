@@ -278,7 +278,7 @@ export default function Inventory() {
                   onClick={() => handleClickItem(item)}
                 >
                   <DeleteItemButton
-                    src={process.env.PUBLIC_URL + "/buttonCheckItem.svg"}
+                    src={process.env.PUBLIC_URL + "/buttonDeleteItem.svg"}
                     alt="Remove Item"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -299,7 +299,7 @@ export default function Inventory() {
                   onClick={() => handleClickItem(item)}
                 >
                   <DeleteItemButton
-                    src={process.env.PUBLIC_URL + "/buttonCheckItem.svg"}
+                    src={process.env.PUBLIC_URL + "/buttonDeleteItem.svg"}
                     alt="Remove Item"
                     onClick={(e) => {
                       e.stopPropagation();
