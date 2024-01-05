@@ -40,7 +40,12 @@ interface ModalProps {
   mode: "add" | "edit";
 }
 
-export default function Modal({ setIsOpen, onSubmitItem, defaultData, mode }: ModalProps) {
+export default function Modal({
+  setIsOpen,
+  onSubmitItem,
+  defaultData,
+  mode,
+}: ModalProps) {
   const [newItem, setNewItem] = useState<Item>({
     name: "",
     expiration: null,
@@ -49,18 +54,23 @@ export default function Modal({ setIsOpen, onSubmitItem, defaultData, mode }: Mo
   useEffect(() => {
     if (defaultData) {
       if (defaultData.expiration) {
-        setNewItem({name: defaultData.name, expiration: defaultData.expiration});
-      }
-      else {
-        setNewItem({name: defaultData.name, expiration: null});
+        setNewItem({
+          name: defaultData.name,
+          expiration: defaultData.expiration,
+        });
+      } else {
+        setNewItem({ name: defaultData.name, expiration: null });
       }
     }
   }, [defaultData]);
 
-  const handleSubmitItem = (setIsOpen: React.Dispatch<React.SetStateAction<boolean>>, onSubmitItem: (item: Item) => void) => {
+  const handleSubmitItem = (
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
+    onSubmitItem: (item: Item) => void
+  ) => {
     onSubmitItem(newItem);
     setIsOpen(false);
-  }
+  };
 
   return (
     <>
@@ -89,18 +99,26 @@ export default function Modal({ setIsOpen, onSubmitItem, defaultData, mode }: Mo
           <input
             type="date"
             id="expiration"
-            min={ "1900-01-01" }
-            max={ "2099-12-31" }
-            value={newItem.expiration ? newItem.expiration.toISOString().slice(0, 10) : ""}
+            min={"1900-01-01"}
+            max={"2099-12-31"}
+            value={
+              newItem.expiration
+                ? newItem.expiration.toISOString().slice(0, 10)
+                : ""
+            }
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const enteredDate = e.target.value ? new Date(e.target.value) : null;
+              const enteredDate = e.target.value
+                ? new Date(e.target.value)
+                : null;
               setNewItem((prevItem) => ({
                 ...prevItem,
                 expiration: enteredDate,
               }));
             }}
           />
-          <button style={{ cursor: 'pointer' }} type="submit">{mode === "add" ? "Add Item" : "Save Changes"}</button>
+          <button style={{ cursor: "pointer" }} type="submit">
+            {mode === "add" ? "Add Item" : "Save Changes"}
+          </button>
         </StyledForm>
       </ModalWindow>
     </>
