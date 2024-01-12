@@ -63,8 +63,10 @@ const DeleteItemButton = styled.img`
   width: 1.2rem;
   margin-right: 0.5rem;
   opacity: 0.3;
+  border-radius: 50%;
   &:hover {
     opacity: 0.7;
+    background-color: #ccc;
   }
 `;
 
