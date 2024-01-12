@@ -18,6 +18,7 @@ import { User } from "firebase/auth";
 import InventoryModal from "../components/InventoryModal";
 import Item from "../components/item";
 import styled from "styled-components";
+import InventoryList from "../components/InventoryList";
 
 const StyledHeader = styled.div`
   display: flex;
@@ -54,40 +55,6 @@ const AddItemButton = styled.img`
   &:hover {
     filter: brightness(95%);
   }
-`;
-
-const DeleteItemButton = styled.img`
-  cursor: pointer;
-  border: none;
-  height: 1.2rem;
-  width: 1.2rem;
-  margin-right: 0.5rem;
-  opacity: 0.3;
-  border-radius: 50%;
-  &:hover {
-    opacity: 0.7;
-    background-color: #ccc;
-  }
-`;
-
-const StyledList = styled.ul`
-  padding: 0rem;
-`;
-
-const StyledListItem = styled.li`
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  margin: 0.5rem 0;
-  box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
-  list-style-type: none;
-  cursor: pointer;
-`;
-
-const StyledSpan = styled.span`
-  margin: 0 1rem;
 `;
 
 const StyledDiv = styled.div`
@@ -210,6 +177,12 @@ export default function Inventory() {
     }
   };
 
+  const InventoryListProps = {
+    items: isSearching ? searchResults : inventory,
+    onClickItem: handleClickItem,
+    onDeleteItem: handleDeleteItem,
+  };
+
   useEffect(() => {
     const inventoryRef = query(
       collection(firestore, "inventory"),
@@ -269,54 +242,12 @@ export default function Inventory() {
       )}
       {loading ? (
         <p>Loading...</p>
-      ) : isSearching && searchResults.length === 0 ? (
-        <p>No matching items found.</p>
       ) : (
-        <StyledList>
-          {isSearching
-            ? searchResults.map((item) => (
-                <StyledListItem
-                  key={item.id}
-                  onClick={() => handleClickItem(item)}
-                >
-                  <DeleteItemButton
-                    src={process.env.PUBLIC_URL + "/buttonDeleteItem.svg"}
-                    alt="Remove Item"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteItem(item.id);
-                    }}
-                  />
-                  {item.name}
-                  {item.expiration && (
-                    <StyledSpan>
-                      {item.expiration.toDate().toISOString().slice(0, 10)}
-                    </StyledSpan>
-                  )}
-                </StyledListItem>
-              ))
-            : inventory.map((item) => (
-                <StyledListItem
-                  key={item.id}
-                  onClick={() => handleClickItem(item)}
-                >
-                  <DeleteItemButton
-                    src={process.env.PUBLIC_URL + "/buttonDeleteItem.svg"}
-                    alt="Remove Item"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteItem(item.id);
-                    }}
-                  />
-                  {item.name}
-                  {item.expiration && (
-                    <StyledSpan>
-                      {item.expiration.toDate().toISOString().slice(0, 10)}
-                    </StyledSpan>
-                  )}
-                </StyledListItem>
-              ))}
-        </StyledList>
+        isSearching && searchResults.length === 0 ? (
+          <p>No matching items found.</p>
+        ) : (
+          <InventoryList {...InventoryListProps} />
+        )
       )}
     </StyledDiv>
   );
