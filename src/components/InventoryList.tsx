@@ -32,8 +32,9 @@ const DeleteItemButton = styled.img`
   }
 `;
 
-const StyledSpan = styled.span`
+const StyledSpan = styled.span<{ $urgent?: boolean }>`
   margin: 0 1rem;
+  color: ${(props) => (props.$urgent ? "crimson" : "inherit")};
 `;
 
 interface InventoryListProps {
@@ -47,6 +48,14 @@ export default function InventoryList({
   onDeleteItem,
   onClickItem
 }: InventoryListProps) {
+  const isUrgent = (expirationDate: Date): boolean => {
+    const today = new Date();
+    const differenceInDays = Math.floor(
+      (expirationDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000)
+    );
+    return differenceInDays < 3;
+  };
+
   return (
     <StyledList>
       {items.map((item) => (
@@ -64,7 +73,7 @@ export default function InventoryList({
           />
           {item.name}
           {item.expiration && (
-            <StyledSpan>
+            <StyledSpan $urgent={isUrgent(item.expiration.toDate())}>
               {item.expiration.toDate().toISOString().slice(0, 10)}
             </StyledSpan>
           )}
