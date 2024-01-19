@@ -177,10 +177,47 @@ export default function Inventory() {
     }
   };
 
+  const handleMoveItem = async (
+    itemId: string,
+    source: number,
+    destination: number
+  ) => {
+    const updatedInventory = [...inventory];
+    const currentInventory = [...inventory];
+    const movedItem = currentInventory.find((item) => item.id === itemId);
+    if (!movedItem) {
+      console.error(`Error: no item ${itemId} found at position ${source}`);
+      return;
+    }
+    updatedInventory.splice(source, 1);
+    updatedInventory.splice(destination, 0, movedItem);
+    setInventory(updatedInventory);
+    const updatedOrders = updatedInventory.map((item, index) => ({
+      id: item.id,
+      order: index,
+    }));
+    console.log("Updating orders in Firestore...");
+    try {
+      await Promise.all(
+        updatedOrders.map(({ id, order }) =>
+          updateDoc(doc(firestore, "inventory", id), { order })
+        )
+      );
+      console.log(
+        `Moved ${itemId} from position ${source} to ${destination} successfully`
+      );
+    } catch (error) {
+      console.error("Error updating orders in Firestore:", error);
+      setInventory(currentInventory);
+    }
+  };
+
   const InventoryListProps = {
     items: isSearching ? searchResults : inventory,
     onClickItem: handleClickItem,
     onDeleteItem: handleDeleteItem,
+    onMoveItem: handleMoveItem,
+    isDndEnabled: !isSearching,
   };
 
   useEffect(() => {
@@ -242,12 +279,10 @@ export default function Inventory() {
       )}
       {loading ? (
         <p>Loading...</p>
+      ) : isSearching && searchResults.length === 0 ? (
+        <p>No matching items found.</p>
       ) : (
-        isSearching && searchResults.length === 0 ? (
-          <p>No matching items found.</p>
-        ) : (
-          <InventoryList {...InventoryListProps} />
-        )
+        <InventoryList {...InventoryListProps} />
       )}
     </StyledDiv>
   );

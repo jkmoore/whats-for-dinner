@@ -1,12 +1,21 @@
 import React from "react";
 import { DocumentData } from "firebase/firestore";
 import styled from "styled-components";
+import {
+  DragDropContext,
+  Draggable,
+  DraggableProvided,
+  Droppable,
+  DropResult,
+  DroppableProvided
+} from "@hello-pangea/dnd";
 
 const StyledList = styled.ul`
   padding: 0rem;
 `;
 
 const StyledListItem = styled.li`
+  background-color: #fafafa;
   display: flex;
   align-items: center;
   border: 1px solid #ccc;
@@ -41,12 +50,16 @@ interface InventoryListProps {
   items: DocumentData[];
   onDeleteItem: (itemId: string | undefined) => void;
   onClickItem: (item: DocumentData) => void;
+  onMoveItem: (itemId: string, source: number, destination: number) => void;
+  isDndEnabled: boolean;
 }
 
 export default function InventoryList({
   items,
   onDeleteItem,
-  onClickItem
+  onClickItem,
+  onMoveItem,
+  isDndEnabled
 }: InventoryListProps) {
   const isUrgent = (expirationDate: Date): boolean => {
     const today = new Date();
@@ -56,7 +69,51 @@ export default function InventoryList({
     return differenceInDays < 3;
   };
 
-  return (
+  const onDragEnd = async (result: DropResult) => {
+    if (result.destination) {
+      await onMoveItem(result.draggableId, result.source.index, result.destination.index);
+    }
+  };
+
+  return isDndEnabled ? (
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="inventory">
+        {(provided: DroppableProvided) => (
+          <StyledList {...provided.droppableProps} ref={provided.innerRef}>
+            {items.map((item, index) => (
+              <Draggable key={item.id} draggableId={item.id} index={index}>
+                {(dragProvided: DraggableProvided) => (
+                  <StyledListItem
+                    ref={dragProvided.innerRef}
+                    {...dragProvided.draggableProps}
+                    {...dragProvided.dragHandleProps}
+                    key={item.id}
+                    onClick={() => onClickItem(item)}
+                  >
+                    <DeleteItemButton
+                      src={process.env.PUBLIC_URL + "/buttonDeleteItem.svg"}
+                      alt="Remove Item"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteItem(item.id);
+                      }}
+                    />
+                    {item.name}
+                    {item.expiration && (
+                      <StyledSpan $urgent={isUrgent(item.expiration.toDate())}>
+                        {item.expiration.toDate().toISOString().slice(0, 10)}
+                      </StyledSpan>
+                    )}
+                  </StyledListItem>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </StyledList>
+        )}
+      </Droppable>
+    </DragDropContext>
+  ) : (
     <StyledList>
       {items.map((item) => (
         <StyledListItem
@@ -81,4 +138,4 @@ export default function InventoryList({
       ))}
     </StyledList>
   );
-}
+};
