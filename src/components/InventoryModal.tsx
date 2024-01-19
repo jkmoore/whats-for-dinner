@@ -22,15 +22,37 @@ const ModalWindow = styled.div`
   background: white;
   padding: 2rem;
   color: black;
-  border-radius: 16px;
-  box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.04);
+  border-radius: 1rem;
   z-index: 1000;
 `;
 
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
+`;
+
+const StyledSpan = styled.span`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const StyledButton = styled.button<{ type: "button" | "submit" }>`
+  cursor: pointer;
+  width: 8rem;
+  border-radius: 0.25rem;
+  ${(props) =>
+    props.type === "submit"
+      ? `
+        background-color: #4285F4;
+        color: white;
+        border: none;
+      `
+      : `
+        background-color: white;
+        color: black;
+        border: 0.5px solid black;
+      `}
 `;
 
 interface ModalProps {
@@ -116,9 +138,14 @@ export default function Modal({
               }));
             }}
           />
-          <button style={{ cursor: "pointer" }} type="submit">
-            {mode === "add" ? "Add Item" : "Save Changes"}
-          </button>
+          <StyledSpan>
+            <StyledButton type="button" onClick={() => setIsOpen(false)}>
+              Cancel
+            </StyledButton>
+            <StyledButton type="submit">
+              {mode === "add" ? "Add Item" : "Save Changes"}
+            </StyledButton>
+          </StyledSpan>
         </StyledForm>
       </ModalWindow>
     </>
