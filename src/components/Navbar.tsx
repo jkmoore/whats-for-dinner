@@ -1,8 +1,7 @@
-import { signOut } from "firebase/auth";
 import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import LogOutButton from "./LogOutButton";
 
 const StyledDiv = styled.div`
   display: flex;
@@ -11,7 +10,8 @@ const StyledDiv = styled.div`
 `;
 
 const StyledList = styled.ul`
-  width: 50rem;
+  width: 45rem;
+  min-width: 45rem;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -41,34 +41,15 @@ const StyledLink = styled(Link)<{ $isActive: boolean }>`
   display: inline-block;
 `;
 
-const StyledButton = styled.button`
-  border: none;
-  background-color: transparent;
-  color: grey;
-  cursor: pointer;
-  padding: 0.5rem;
-`;
-
 export default function Navbar() {
   const location = useLocation();
   const currentPath = location.pathname;
-  const navigate = useNavigate();
 
   const navLinks = [
     { path: "/inventory", text: "INVENTORY" },
     { path: "/recipes", text: "RECIPES" },
     { path: "/accountSettings", text: "ACCOUNT SETTINGS" },
   ];
-
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        navigate("/login");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
 
   return (
     <StyledDiv>
@@ -85,7 +66,7 @@ export default function Navbar() {
           </li>
         ))}
         <li>
-          <StyledButton onClick={handleLogout}>Log Out</StyledButton>
+          <LogOutButton type="navbar" />
         </li>
       </StyledList>
     </StyledDiv>

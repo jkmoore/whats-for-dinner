@@ -41,9 +41,15 @@ const DeleteItemButton = styled.img`
   }
 `;
 
-const StyledSpan = styled.span<{ $urgent?: boolean }>`
+const ItemExpirationSpan = styled.span<{ $urgent?: boolean }>`
   margin: 0 1rem;
   color: ${(props) => (props.$urgent ? "crimson" : "inherit")};
+`;
+
+const ItemNameSpan = styled.span`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 interface InventoryListProps {
@@ -98,11 +104,13 @@ export default function InventoryList({
                         onDeleteItem(item.id);
                       }}
                     />
-                    {item.name}
+                    <ItemNameSpan>
+                      {item.name}
+                    </ItemNameSpan>
                     {item.expiration && (
-                      <StyledSpan $urgent={isUrgent(item.expiration.toDate())}>
+                      <ItemExpirationSpan $urgent={isUrgent(item.expiration.toDate())}>
                         {item.expiration.toDate().toISOString().slice(0, 10)}
-                      </StyledSpan>
+                      </ItemExpirationSpan>
                     )}
                   </StyledListItem>
                 )}
@@ -128,11 +136,13 @@ export default function InventoryList({
               onDeleteItem(item.id);
             }}
           />
-          {item.name}
+          <ItemNameSpan>
+            {item.name}
+          </ItemNameSpan>
           {item.expiration && (
-            <StyledSpan $urgent={isUrgent(item.expiration.toDate())}>
+            <ItemExpirationSpan $urgent={isUrgent(item.expiration.toDate())}>
               {item.expiration.toDate().toISOString().slice(0, 10)}
-            </StyledSpan>
+            </ItemExpirationSpan>
           )}
         </StyledListItem>
       ))}

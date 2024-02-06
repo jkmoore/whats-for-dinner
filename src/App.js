@@ -12,8 +12,10 @@ import LoggedOutRoute from "./LoggedOutRoute";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.tsx";
+import MobileHeader from "./components/MobileHeader.tsx"
 import NotFound from "./pages/NotFound.tsx";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
+import { useMediaQuery } from 'styled-breakpoints/use-media-query';
 
 const StyledSection = styled.section`
   background-color: #f2f2f2;
@@ -26,6 +28,7 @@ const StyledSection = styled.section`
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isLarge = useMediaQuery(useTheme()?.breakpoints.up('md'));
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -43,7 +46,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider value={{ currentUser }}>
         <div>
-          {currentUser && <Navbar />}
+          {currentUser && (isLarge ? <Navbar /> : <MobileHeader />)}
           <StyledSection>
             <Routes>
               <Route
