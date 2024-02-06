@@ -109,9 +109,10 @@ export default function Modal({
           <input
             type="text"
             id="item"
-            placeholder="Item"
+            placeholder="Item (50 characters max)"
             value={newItem.name}
             required
+            maxLength={50}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setNewItem({ ...newItem, name: e.target.value })
             }
