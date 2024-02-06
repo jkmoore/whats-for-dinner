@@ -301,6 +301,8 @@ export default function Inventory() {
         <p>Loading...</p>
       ) : isSearching && searchResults.length === 0 ? (
         <p>No matching items found.</p>
+      ) : inventory.length === 0 ? (
+        <p>No items in your inventory.</p>
       ) : (
         <InventoryList {...InventoryListProps} />
       )}
