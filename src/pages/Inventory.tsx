@@ -110,8 +110,10 @@ export default function Inventory() {
   };
 
   const handleAddItem = async (newItem: Item) => {
+    const lowercaseName = newItem.name.toLowerCase();
     addDoc(collection(firestore, "inventory"), {
       ...newItem,
+      lowercaseName: lowercaseName,
       order: maxOrder + 1,
       userId: user?.uid,
     }).catch((error) => {
@@ -122,8 +124,10 @@ export default function Inventory() {
   const handleEditItem = async (newItem: Item) => {
     try {
       if (itemToEdit) {
+        const lowercaseName = newItem.name.toLowerCase();
         await updateDoc(doc(firestore, "inventory", itemToEdit), {
           ...newItem,
+          lowercaseName: lowercaseName,
         });
         setItemToEdit(null);
       } else {
@@ -168,8 +172,8 @@ export default function Inventory() {
       const searchRef = query(
         collection(firestore, "inventory"),
         where("userId", "==", user?.uid),
-        where("name", ">=", queryInputValue),
-        where("name", "<=", queryInputValue + "\uf8ff")
+        where("lowercaseName", ">=", queryInputValue),
+        where("lowercaseName", "<=", queryInputValue + "\uf8ff"),
       );
 
       onSnapshot(
@@ -180,7 +184,8 @@ export default function Inventory() {
             const result = { id: doc.id, ...doc.data() };
             results.push(result);
           });
-          setSearchResults(results);
+          const sortedResults = results.sort((a, b) => a.order - b.order);
+          setSearchResults(sortedResults);
         },
         (error) => {
           console.error("Error searching inventory:", error);
