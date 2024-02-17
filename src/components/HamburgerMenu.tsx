@@ -21,7 +21,7 @@ export default function HamburgerMenu() {
   };
 
   return (
-    <Menu right isOpen={menuOpen} onStateChange={handleStateChange}>
+    <Menu right customBurgerIcon={ <img src={process.env.PUBLIC_URL + "/hamburgerMenu.svg" } alt="Menu" />} isOpen={menuOpen} onStateChange={handleStateChange}>
       <StyledLink id="inventory" className="menu-item" to="/inventory" onClick={closeMenu}>Inventory</StyledLink>
       <StyledLink id="recipes" className="menu-item" to="/recipes" onClick={closeMenu}>Recipes</StyledLink>
       <StyledLink id="accountSettings" className="menu-item" to="/accountSettings" onClick={closeMenu}>Account Settings</StyledLink>

@@ -15,6 +15,9 @@ const StyledContainer = styled.div`
   min-height: 5rem;
   display: flex;
   border-bottom: 1px solid #d9d9d9;
+  .bm-burger-button:hover {
+    opacity: 0.8;
+  }
   .bm-overlay {
     position: fixed;
     top: 0;
@@ -26,9 +29,6 @@ const StyledContainer = styled.div`
     height: 1.875rem;
     right: 2rem;
     top: 1.625rem;
-  }
-  .bm-burger-bars {
-    background: #373a47;
   }
   .bm-cross {
     background: #bdc3c7;

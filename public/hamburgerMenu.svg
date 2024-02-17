@@ -1,0 +1,18 @@
+<svg width="420" height="350" viewBox="0 0 420 350" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="35" y1="315" x2="385" y2="315" stroke="#F5B12C" stroke-width="70" stroke-linecap="round"/>
+<line x1="35" y1="175" x2="385" y2="175" stroke="#764700" stroke-width="70" stroke-linecap="round"/>
+<line x1="35" y1="35" x2="385" y2="35" stroke="#F5B12C" stroke-width="70" stroke-linecap="round"/>
+<mask id="mask0_57_270" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="140" width="420" height="20">
+<rect y="140" width="420" height="20" fill="#D30000"/>
+</mask>
+<g mask="url(#mask0_57_270)">
+<line x1="35" y1="175" x2="385" y2="175" stroke="#D30000" stroke-width="70" stroke-linecap="round"/>
+</g>
+<mask id="mask1_57_270" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="280" width="420" height="20">
+<rect y="280" width="420" height="20" fill="#92CF45"/>
+</mask>
+<g mask="url(#mask1_57_270)">
+<line x1="35" y1="315" x2="385" y2="315" stroke="#92CF45" stroke-width="70" stroke-linecap="round"/>
+</g>
+<path d="M210 207L84.4263 159.75L335.574 159.75L210 207Z" fill="#FFE600"/>
+</svg>
