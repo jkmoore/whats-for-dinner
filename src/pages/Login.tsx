@@ -15,7 +15,7 @@ export default function Login() {
         navigate("/inventory");
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
       });
   };
 
