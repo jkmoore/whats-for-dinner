@@ -1,5 +1,5 @@
 import React from "react";
-import HamburgerMenu from "./HamburgerMenu"; // Replace with the correct path
+import HamburgerMenu from "./HamburgerMenu";
 import styled from "styled-components";
 
 const StyledImg = styled.img`
