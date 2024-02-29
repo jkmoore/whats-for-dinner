@@ -7,6 +7,7 @@ import Recipes from "./pages/Recipes.tsx";
 import AccountSettings from "./pages/AccountSettings.tsx";
 import Signup from "./pages/Signup.tsx";
 import Login from "./pages/Login.tsx";
+import PasswordReset from "./pages/PasswordReset.tsx";
 import PrivateRoute from "./PrivateRoute";
 import LoggedOutRoute from "./LoggedOutRoute";
 import { BrowserRouter } from "react-router-dom";
@@ -46,7 +47,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider value={{ currentUser }}>
         <div>
-          {currentUser && (isLarge ? <Navbar /> : <MobileHeader />)}
+          {currentUser && currentUser.emailVerified && (isLarge ? <Navbar /> : <MobileHeader />)}
           <StyledSection>
             <Routes>
               <Route
@@ -86,6 +87,14 @@ function App() {
                 element={
                   <LoggedOutRoute>
                     <Login />
+                  </LoggedOutRoute>
+                }
+              />
+              <Route
+                path="/passwordreset"
+                element={
+                  <LoggedOutRoute>
+                    <PasswordReset />
                   </LoggedOutRoute>
                 }
               />

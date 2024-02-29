@@ -4,7 +4,7 @@ import { useAuthValue } from "./AuthContext";
 export default function LoggedOutRoute({ children }) {
   const { currentUser } = useAuthValue();
 
-  if (currentUser) {
+  if (currentUser && currentUser.emailVerified) {
     return <Navigate to="/inventory" replace/>
   }
   else {
