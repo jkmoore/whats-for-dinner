@@ -216,15 +216,11 @@ export default function Inventory() {
       id: item.id,
       order: index,
     }));
-    console.log("Updating orders in Firestore...");
     try {
       await Promise.all(
         updatedOrders.map(({ id, order }) =>
           updateDoc(doc(firestore, "inventory", id), { order })
         )
-      );
-      console.log(
-        `Moved ${itemId} from position ${source} to ${destination} successfully`
       );
     } catch (error) {
       console.error("Error updating orders in Firestore:", error);
