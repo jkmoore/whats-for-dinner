@@ -281,6 +281,7 @@ export default function Inventory() {
           }}
         />
         <SearchBar
+          id="search"
           placeholder="Search for an item"
           onChange={handleSearchChange}
         />
