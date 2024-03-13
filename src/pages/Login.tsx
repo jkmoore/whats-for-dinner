@@ -2,6 +2,16 @@ import React, { useState } from "react";
 import { sendEmailVerification, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { NavLink, useNavigate } from "react-router-dom";
+import {
+  StyledFormBackground,
+  StyledFormContainer,
+  StyledInput,
+  SubmitButton,
+  StyledImg,
+  StyledForm,
+  ErrorMessage,
+  StyledTextCenter
+} from "../components/StyledAuthForm";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -23,7 +33,7 @@ export default function Login() {
           await signOut(auth);
           await sendEmailVerification(userCredential.user);
           setShowErrorMessage(true);
-          setErrorMessage("Your account is not yet verified. Please check your email for a verification link to log in. If you receive no email, please click to resend.")
+          setErrorMessage("Your account is not yet verified. Not to worry! We've sent you a new verification email. If you don't see it in your inbox within a few minutes, click Login again to resend.")
         }
       })
       .catch((error) => {
@@ -41,7 +51,7 @@ export default function Login() {
             setErrorMessage("Invalid login credentials.");
             break;
           case "auth/too-many-requests":
-            setErrorMessage("Login failed. It might be because you recently signed up or attempted to login and are not verified. Please check your email and verify before logging in. If you have not received an email, please wait a few minutes and try again.");
+            setErrorMessage("Login is temporarily disabled due to repeated failed attempts with incorrect or unverified credentials. Please wait a few minutes and try again. If you aren't verified, check your email for a verification link.");
             break;
           default:
             setErrorMessage("An unknown error occurred. Please wait a moment and try again.")
@@ -51,11 +61,11 @@ export default function Login() {
   };
 
   return (
-    <div>
-      <form>
-        <div>
-          <label htmlFor="email-address">Email address</label>
-          <input
+    <StyledFormBackground>
+      <StyledFormContainer>
+        <StyledImg src={process.env.PUBLIC_URL + "/logoNavbar.svg"} alt="What's for Dinner?"/>
+        <StyledForm>
+          <StyledInput
             id="email-address"
             name="email"
             type="email"
@@ -64,10 +74,7 @@ export default function Login() {
             autoComplete="email"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
+          <StyledInput
             id="password"
             name="password"
             type="password"
@@ -76,16 +83,16 @@ export default function Login() {
             autoComplete="current-password"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           />
-        </div>
-        <button onClick={onLogin}>Login</button>
-      </form>
-      {showErrorMessage && <p>{errorMessage}</p>}
-      <p>
-        <NavLink to="/passwordreset">Forgot your password?</NavLink>
-      </p>
-      <p>
-        No account yet? <NavLink to="/signup">Sign up</NavLink>
-      </p>
-    </div>
+          <SubmitButton onClick={onLogin}>Login</SubmitButton>
+        </StyledForm>
+        {showErrorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+        <StyledTextCenter>
+          <NavLink to="/passwordreset">Forgot your password?</NavLink>
+        </StyledTextCenter>
+        <StyledTextCenter>
+          No account yet? <NavLink to="/signup">Sign up</NavLink>
+        </StyledTextCenter>
+      </StyledFormContainer>
+    </StyledFormBackground>
   );
 }

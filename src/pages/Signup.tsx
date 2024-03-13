@@ -2,6 +2,17 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { User, createUserWithEmailAndPassword, sendEmailVerification, signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import {
+  StyledFormBackground,
+  StyledFormContainer,
+  StyledInput,
+  SubmitButton,
+  StyledImg,
+  StyledForm,
+  ErrorMessage,
+  StyledText,
+  StyledTextCenter
+} from "../components/StyledAuthForm";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -35,6 +46,9 @@ export default function Signup() {
         case "auth/missing-password":
           setErrorMessage("Please enter a password.");
           break;
+        case "auth/missing-email":
+        setErrorMessage("Please enter a valid email address.");
+          break;
         default:
           setErrorMessage("An unknown error occurred. Please wait a moment and try again.")
           break;
@@ -52,11 +66,11 @@ export default function Signup() {
   };
 
   return (
-    <div>
-      <form>
-        <div>
-          <label htmlFor="email-address">Email address</label>
-          <input
+    <StyledFormBackground>
+      <StyledFormContainer>
+        <StyledImg src={process.env.PUBLIC_URL + "/logoNavbar.svg"} alt="What's for Dinner?"/>
+        <StyledForm>
+          <StyledInput
             id="email-address"
             type="email"
             value={email}
@@ -65,10 +79,7 @@ export default function Signup() {
             autoComplete="off"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
+          <StyledInput
             id="password"
             type="password"
             value={password}
@@ -77,22 +88,20 @@ export default function Signup() {
             autoComplete="off"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           />
-        </div>
-        <button type="submit" onClick={onSubmit}>
-          Sign up
-        </button>
-      </form>
-      {showError && (<p>{errorMessage}</p>)}
-      {verificationSent && (
-        <span>
-          <p>
+          <SubmitButton type="submit" onClick={onSubmit}>
+            Sign up
+          </SubmitButton>
+        </StyledForm>
+        {showError && (<ErrorMessage>{errorMessage}</ErrorMessage>)}
+        {verificationSent && (
+          <StyledText>
             A verification email has been sent to your email address. Please verify your email to complete the sign-up process.
-          </p>
-        </span>
-      )}
-      <p>
-        Already have an account? <NavLink to="/login">Sign in</NavLink>
-      </p>
-    </div>
+          </StyledText>
+        )}
+        <StyledTextCenter>
+          Already have an account? <NavLink to="/login">Sign in</NavLink>
+        </StyledTextCenter>
+      </StyledFormContainer>
+    </StyledFormBackground>
   );
 }

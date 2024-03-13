@@ -1,11 +1,26 @@
 import React, { useState } from "react";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import {
+  StyledFormBackground,
+  StyledFormContainer,
+  StyledInput,
+  SubmitButton,
+  StyledImg,
+  StyledForm,
+  ErrorMessage,
+  StyledText,
+  StyledHeader,
+  StyledTextCenter
+} from "../components/StyledAuthForm";
+import { NavLink } from "react-router-dom";
 
 export default function PasswordReset() {
   const [email, setEmail] = useState("");
   const [resultMessage, setResultMessage] = useState<string>("");
+  const [isError, setIsError] = useState<boolean>(false);
 
   const onSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setIsError(false);
     setResultMessage("");
     e.preventDefault();
     const auth = getAuth();
@@ -14,6 +29,7 @@ export default function PasswordReset() {
         setResultMessage("If an account with the given email address exists, the system will send an email to reset your password shortly.");
       })
       .catch((error) => {
+        setIsError(true);
         console.error(error);
         const errorCode = error.code;
         switch (errorCode) {
@@ -31,12 +47,12 @@ export default function PasswordReset() {
   }
 
   return (
-    <>
-      <h1>Reset your password</h1>
-      <form>
-        <div>
-          <label htmlFor="email-address">Email address</label>
-          <input
+    <StyledFormBackground>
+      <StyledFormContainer>
+        <StyledImg src={process.env.PUBLIC_URL + "/logoNavbar.svg"} alt="What's for Dinner?"/>
+        <StyledHeader>Reset your password</StyledHeader>
+        <StyledForm>
+          <StyledInput
             id="email-address"
             type="email"
             value={email}
@@ -45,12 +61,15 @@ export default function PasswordReset() {
             autoComplete="email"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           />
-        </div>
-        <button type="submit" onClick={onSubmit}>
-          Send password reset email
-        </button>
-      </form>
-      {resultMessage && <p>{resultMessage}</p>}
-    </>
+          <SubmitButton type="submit" onClick={onSubmit}>
+            Send password reset email
+          </SubmitButton>
+        </StyledForm>
+        {resultMessage && (isError ? <ErrorMessage>{resultMessage}</ErrorMessage> : <StyledText>{resultMessage}</StyledText>)}
+        <StyledTextCenter>
+          Have your password? <NavLink to="/login">Log in</NavLink>
+        </StyledTextCenter>
+      </StyledFormContainer>
+    </StyledFormBackground>
   );
 }
