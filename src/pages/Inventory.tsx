@@ -165,7 +165,7 @@ export default function Inventory() {
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const queryInputValue = event.target.value.trim();
+    const queryInputValue = event.target.value.trim().toLowerCase();
 
     if (queryInputValue) {
       setIsSearching(true);
