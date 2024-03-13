@@ -11,7 +11,37 @@ import {
 import styled from "styled-components";
 
 const StyledDiv = styled.div`
-  padding: 1.5rem 2rem;
+  width: 100%;
+  height: 100%;
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+`;
+
+const StyledContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
+  ${({ theme }) => theme.breakpoints.down('sm')} {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+  ${({ theme }) => theme.breakpoints.up('md')} {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+  ${({ theme }) => theme.breakpoints.up('xl')} {
+    padding-left: 10rem;
+    padding-right: 10rem;
+  }
+  ${({ theme }) => theme.breakpoints.up('xxl')} {
+    padding-left: 15rem;
+    padding-right: 15rem;
+  }
 `;
 
 const StyledForm = styled.form`
@@ -189,96 +219,98 @@ export default function AccountSettings() {
   }, [currentUser]);
 
   return (
-    <StyledDiv>
-      {showSuccess && <p>{successMessage}</p>}
-      {showError && <p>{errorMessage}</p>}
-      <StyledForm>
-        <h1>Change email address</h1>
-        <p>Current email: {currentEmail}</p>
-        <StyledInput
-          id="new-email-address"
-          type="email"
-          value={newEmail}
-          required
-          placeholder="New email"
-          autoComplete="off"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setNewEmail(e.target.value)
-          }
-        />
-        <StyledInput
-          id="confirm-new-email-address"
-          type="email"
-          value={confirmNewEmail}
-          required
-          placeholder="Confirm new email"
-          autoComplete="off"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setConfirmNewEmail(e.target.value)
-          }
-        />
-        <StyledInput
-          id="password"
-          type="password"
-          value={passwordForEmailChange}
-          required
-          placeholder="Current password"
-          autoComplete="current-password"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setPasswordForEmailChange(e.target.value)
-          }
-        />
-        <ConfirmButton type="submit" onClick={onChangeEmail}>
-          Confirm changes
-        </ConfirmButton>
-      </StyledForm>
-      <StyledForm>
-        <h1>Change password</h1>
-        <StyledInput
-          id="current-password"
-          type="password"
-          value={currentPassword}
-          required
-          placeholder="Current password"
-          autoComplete="current-password"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setCurrentPassword(e.target.value)
-          }
-        />
-        <StyledInput
-          id="new-password"
-          type="password"
-          value={newPassword}
-          required
-          placeholder="New password"
-          autoComplete="new-password"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setNewPassword(e.target.value)
-          }
-        />
-        <StyledInput
-          id="confirm-new-password"
-          type="password"
-          value={confirmNewPassword}
-          required
-          placeholder="Confirm new password"
-          autoComplete="new-password"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setConfirmNewPassword(e.target.value)
-          }
-        />
-        <ConfirmButton type="submit" onClick={onChangePassword}>
-          Confirm changes
-        </ConfirmButton>
-        <br />
-        <p>
-          Or click{" "}
-          <InTextButton type="button" onClick={onSendPasswordResetEmail}>
-            here
-          </InTextButton>{" "}
-          to reset your password via email
-        </p>
-      </StyledForm>
-    </StyledDiv>
+    <StyledContainer>
+      <StyledDiv>
+        {showSuccess && <p>{successMessage}</p>}
+        {showError && <p>{errorMessage}</p>}
+        <StyledForm>
+          <h1>Change email address</h1>
+          <p>Current email: {currentEmail}</p>
+          <StyledInput
+            id="new-email-address"
+            type="email"
+            value={newEmail}
+            required
+            placeholder="New email"
+            autoComplete="off"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setNewEmail(e.target.value)
+            }
+          />
+          <StyledInput
+            id="confirm-new-email-address"
+            type="email"
+            value={confirmNewEmail}
+            required
+            placeholder="Confirm new email"
+            autoComplete="off"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setConfirmNewEmail(e.target.value)
+            }
+          />
+          <StyledInput
+            id="password"
+            type="password"
+            value={passwordForEmailChange}
+            required
+            placeholder="Current password"
+            autoComplete="current-password"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPasswordForEmailChange(e.target.value)
+            }
+          />
+          <ConfirmButton type="submit" onClick={onChangeEmail}>
+            Confirm changes
+          </ConfirmButton>
+        </StyledForm>
+        <StyledForm>
+          <h1>Change password</h1>
+          <StyledInput
+            id="current-password"
+            type="password"
+            value={currentPassword}
+            required
+            placeholder="Current password"
+            autoComplete="current-password"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setCurrentPassword(e.target.value)
+            }
+          />
+          <StyledInput
+            id="new-password"
+            type="password"
+            value={newPassword}
+            required
+            placeholder="New password"
+            autoComplete="new-password"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setNewPassword(e.target.value)
+            }
+          />
+          <StyledInput
+            id="confirm-new-password"
+            type="password"
+            value={confirmNewPassword}
+            required
+            placeholder="Confirm new password"
+            autoComplete="new-password"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setConfirmNewPassword(e.target.value)
+            }
+          />
+          <ConfirmButton type="submit" onClick={onChangePassword}>
+            Confirm changes
+          </ConfirmButton>
+          <br />
+          <p>
+            Or click{" "}
+            <InTextButton type="button" onClick={onSendPasswordResetEmail}>
+              here
+            </InTextButton>{" "}
+            to reset your password via email
+          </p>
+        </StyledForm>
+      </StyledDiv>
+    </StyledContainer>
   );
 }
