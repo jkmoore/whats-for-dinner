@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { AuthProvider } from "./AuthContext";
 import Inventory from "./pages/Inventory.tsx";
 import Recipes from "./pages/Recipes.tsx";
-import AccountSettings from "./pages/AccountSettings.tsx";
+import Settings from "./pages/Settings.tsx";
 import Signup from "./pages/Signup.tsx";
 import Login from "./pages/Login.tsx";
 import PasswordReset from "./pages/PasswordReset.tsx";
@@ -67,10 +67,10 @@ function App() {
                 }
               />
               <Route
-                path="/accountsettings"
+                path="/settings"
                 element={
                   <PrivateRoute>
-                    <AccountSettings />
+                    <Settings />
                   </PrivateRoute>
                 }
               />

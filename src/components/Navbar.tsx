@@ -48,7 +48,7 @@ export default function Navbar() {
   const navLinks = [
     { path: "/inventory", text: "INVENTORY" },
     { path: "/recipes", text: "RECIPES" },
-    { path: "/accountSettings", text: "ACCOUNT SETTINGS" },
+    { path: "/settings", text: "SETTINGS" },
   ];
 
   return (

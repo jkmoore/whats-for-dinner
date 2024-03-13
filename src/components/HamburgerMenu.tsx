@@ -24,7 +24,7 @@ export default function HamburgerMenu() {
     <Menu right customBurgerIcon={ <img src={process.env.PUBLIC_URL + "/hamburgerMenu.svg" } alt="Menu" />} isOpen={menuOpen} onStateChange={handleStateChange}>
       <StyledLink id="inventory" className="menu-item" to="/inventory" onClick={closeMenu}>Inventory</StyledLink>
       <StyledLink id="recipes" className="menu-item" to="/recipes" onClick={closeMenu}>Recipes</StyledLink>
-      <StyledLink id="accountSettings" className="menu-item" to="/accountSettings" onClick={closeMenu}>Account Settings</StyledLink>
+      <StyledLink id="settings" className="menu-item" to="/settings" onClick={closeMenu}>Settings</StyledLink>
       <LogOutButton type="hamburgerMenu" />
     </Menu>
   );

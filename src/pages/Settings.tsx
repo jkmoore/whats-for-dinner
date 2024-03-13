@@ -78,7 +78,7 @@ const InTextButton = styled.button`
   cursor: pointer;
 `;
 
-export default function AccountSettings() {
+export default function Settings() {
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [showError, setShowError] = useState<boolean>(false);
