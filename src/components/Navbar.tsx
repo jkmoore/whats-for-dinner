@@ -49,6 +49,7 @@ export default function Navbar() {
     { path: "/inventory", text: "INVENTORY" },
     { path: "/shoppingList", text: "SHOPPING LIST" },
     { path: "/recipes", text: "RECIPES" },
+    { path: "/mealPlan", text: "MEAL PLAN"},
     { path: "/settings", text: "SETTINGS" },
   ];
 

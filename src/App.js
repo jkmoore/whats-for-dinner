@@ -6,6 +6,7 @@ import Inventory from "./pages/Inventory.tsx";
 import ShoppingList from "./pages/ShoppingList.tsx";
 import Recipes from "./pages/Recipes.tsx";
 import Settings from "./pages/Settings.tsx";
+import MealPlan from "./pages/MealPlan.tsx";
 import Signup from "./pages/Signup.tsx";
 import Login from "./pages/Login.tsx";
 import PasswordReset from "./pages/PasswordReset.tsx";
@@ -72,6 +73,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Recipes />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/mealPlan"
+                element={
+                  <PrivateRoute>
+                    <MealPlan />
                   </PrivateRoute>
                 }
               />
