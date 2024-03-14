@@ -10,8 +10,8 @@ const StyledDiv = styled.div`
 `;
 
 const StyledList = styled.ul`
-  width: 45rem;
-  min-width: 45rem;
+  width: 48rem;
+  min-width: 48rem;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -30,7 +30,7 @@ const StyledList = styled.ul`
 
 const StyledLink = styled(Link)<{ $isActive: boolean }>`
   text-decoration: none;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: ${(props) => (props.$isActive ? "#D30000" : "black")};
   border-bottom: ${(props) =>
     props.$isActive ? "0.25rem solid #D30000" : "0.25rem solid transparent"};
@@ -47,6 +47,7 @@ export default function Navbar() {
 
   const navLinks = [
     { path: "/inventory", text: "INVENTORY" },
+    { path: "/shoppingList", text: "SHOPPING LIST" },
     { path: "/recipes", text: "RECIPES" },
     { path: "/settings", text: "SETTINGS" },
   ];

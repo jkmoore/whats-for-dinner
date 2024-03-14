@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import InventoryItem from "./inventoryItem";
+import ShoppingListItem from "./shoppingListItem";
 
 const Background = styled.div`
   background-color: rgba(0, 0, 0, 0.2);
@@ -57,8 +57,8 @@ const StyledButton = styled.button<{ type: "button" | "submit" }>`
 
 interface ModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  onSubmitItem: (item: InventoryItem) => void;
-  defaultData: InventoryItem | null;
+  onSubmitItem: (item: ShoppingListItem) => void;
+  defaultData: ShoppingListItem | null;
   mode: "add" | "edit";
 }
 
@@ -68,27 +68,17 @@ export default function Modal({
   defaultData,
   mode,
 }: ModalProps) {
-  const [newItem, setNewItem] = useState<InventoryItem>({
-    name: "",
-    expiration: null,
-  });
+  const [newItem, setNewItem] = useState<ShoppingListItem>({ name: "" });
 
   useEffect(() => {
     if (defaultData) {
-      if (defaultData.expiration) {
-        setNewItem({
-          name: defaultData.name,
-          expiration: defaultData.expiration,
-        });
-      } else {
-        setNewItem({ name: defaultData.name, expiration: null });
-      }
+      setNewItem({ name: defaultData.name });
     }
   }, [defaultData]);
 
   const handleSubmitItem = (
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    onSubmitItem: (item: InventoryItem) => void
+    onSubmitItem: (item: ShoppingListItem) => void
   ) => {
     onSubmitItem(newItem);
     setIsOpen(false);
@@ -116,28 +106,6 @@ export default function Modal({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setNewItem({ ...newItem, name: e.target.value })
             }
-          />
-          <label htmlFor="expiration">Expiration Date</label>
-          <style>{`input::-webkit-calendar-picker-indicator { cursor: pointer; }`}</style>
-          <input
-            type="date"
-            id="expiration"
-            min={"1900-01-01"}
-            max={"2099-12-31"}
-            value={
-              newItem.expiration
-                ? newItem.expiration.toISOString().slice(0, 10)
-                : ""
-            }
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const enteredDate = e.target.value
-                ? new Date(e.target.value)
-                : null;
-              setNewItem((prevItem) => ({
-                ...prevItem,
-                expiration: enteredDate,
-              }));
-            }}
           />
           <StyledSpan>
             <StyledButton type="button" onClick={() => setIsOpen(false)}>

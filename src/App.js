@@ -3,6 +3,7 @@ import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { AuthProvider } from "./AuthContext";
 import Inventory from "./pages/Inventory.tsx";
+import ShoppingList from "./pages/ShoppingList.tsx";
 import Recipes from "./pages/Recipes.tsx";
 import Settings from "./pages/Settings.tsx";
 import Signup from "./pages/Signup.tsx";
@@ -55,6 +56,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Inventory />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/shoppinglist"
+                element={
+                  <PrivateRoute>
+                    <ShoppingList />
                   </PrivateRoute>
                 }
               />
