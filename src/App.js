@@ -20,12 +20,19 @@ import NotFound from "./pages/NotFound.tsx";
 import styled, { useTheme } from "styled-components";
 import { useMediaQuery } from 'styled-breakpoints/use-media-query';
 
+const Container = styled.div`
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+`;
+
 const StyledSection = styled.section`
   background-color: #f2f2f2;
   background-image: linear-gradient(#f2f2f2, white);
   * {
     margin-top: 0rem;
   }
+  flex: 1;
 `;
 
 function App() {
@@ -48,7 +55,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider value={{ currentUser }}>
-        <div>
+        <Container>
           {currentUser && currentUser.emailVerified && (isLarge ? <Navbar /> : <MobileHeader />)}
           <StyledSection>
             <Routes>
@@ -119,7 +126,7 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </StyledSection>
-        </div>
+        </Container>
       </AuthProvider>
     </BrowserRouter>
   );

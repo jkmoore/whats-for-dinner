@@ -1,5 +1,192 @@
-import React from "react";
+import { User } from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { auth, firestore } from "../firebase";
+import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
+import MealPlanItem from "../components/mealPlanItem";
+import MealPlanDay from "../components/MealPlanDay";
+import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+
+const NUM_DAYS_ON_SCREEN = 7;
+
+const StyledContainer = styled.div`
+  display: flex;
+  overflow-x: auto;
+  padding: 2rem;
+  box-sizing: border-box;
+  gap: 0.5rem;
+  height: 100%;
+`;
+
+interface MealsByDate {
+  [date: string]: MealPlanItem[];
+}
+
+interface MaxOrdersByDate {
+  [date: string]: number;
+}
 
 export default function MealPlan() {
-  return <h1>Meal Plan</h1>;
+  const [maxOrdersByDate, setMaxOrdersByDate] = useState<MaxOrdersByDate>({});
+  const [loading, setLoading] = useState<boolean>(true);
+  const [meals, setMeals] = useState<MealsByDate>({});
+  const [addingEnabled, setAddingEnabled] = useState<boolean>(true);
+  const user: User | null = auth.currentUser;
+  const days: string[] = [];
+  for (let i = 0; i < NUM_DAYS_ON_SCREEN; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+    days.push(date.toLocaleDateString());
+  }
+
+  const handleAddItem = async (name: string, date: string) => {
+    await addDoc(collection(firestore, "mealPlan"), {
+      name: name,
+      date: date,
+      order: maxOrdersByDate[date] ? maxOrdersByDate[date] + 1 : 1,
+      userId: user?.uid,
+    }).catch((error) => {
+      console.error("Error adding item:", error);
+    });
+  };
+
+  const handleEditItem = async (id: string, name: string) => {
+    await updateDoc(doc(firestore, "mealPlan", id), {
+      name: name
+    }).catch((error) => {
+      console.error("Error updating item:", error);
+    });
+  };
+
+  const handleDeleteItem = async (itemId: string, date: string) => {
+    try {
+      const itemRef = doc(collection(firestore, "mealPlan"), itemId);
+      await deleteDoc(itemRef);
+      setMeals((prevMeals) => ({
+        ...prevMeals,
+        [date]: prevMeals[date] ? prevMeals[date].filter(item => item.id !== itemId) : []
+      }));
+    } catch (error) {
+      console.error("Error deleting item:", error);
+    }
+  }
+
+  const handleMoveItem = async (
+    itemId: string,
+    sourceDate: string,
+    destDate: string,
+    sourceIndex: number,
+    destIndex: number,
+  ) => {
+    const currentMealsByDate = JSON.parse(JSON.stringify(meals));
+    const updatedMealsByDate = JSON.parse(JSON.stringify(meals));
+    const [movedItem] = updatedMealsByDate[sourceDate].splice(sourceIndex, 1);
+    if (!updatedMealsByDate[destDate]) {
+      updatedMealsByDate[destDate] = [];
+    }
+    updatedMealsByDate[destDate].splice(destIndex, 0, movedItem);  
+    setMeals(updatedMealsByDate);
+    const updatedOrders = updatedMealsByDate[destDate].map((item: MealPlanItem, index: number) => ({
+      id: item.id,
+      order: index,
+    }));
+    try {
+      await Promise.all(
+        updatedOrders.map(({ id, order }: { id: string, order: number }) =>
+          updateDoc(doc(firestore, "mealPlan", id), { order: order })
+        ),
+      );
+      if (sourceDate !== destDate) {
+        await updateDoc(doc(firestore, "mealPlan", itemId), { date: destDate });
+      }
+    } catch (error) {
+      console.error("Error updating orders in Firestore:", error);
+      setMeals(currentMealsByDate);
+    }
+  };
+
+  const onDragStart = () => {
+    setAddingEnabled(false);
+  }
+
+  const onDragEnd = async (result: DropResult) => {
+    const { draggableId, destination, source } = result;
+    if (destination) {
+      await handleMoveItem(
+        draggableId,
+        source.droppableId,
+        destination.droppableId,
+        source.index,
+        destination.index,
+      );
+    }
+    setAddingEnabled(true);
+  };
+
+  useEffect(() => {
+    const mealPlanRef = query(
+      collection(firestore, "mealPlan"),
+      orderBy("date"),
+      orderBy("order"),
+      where("userId", "==", user?.uid)
+    );
+    setLoading(true);
+    const unsubscribe = onSnapshot(
+      mealPlanRef,
+      (querySnapshot: QuerySnapshot<DocumentData>) => {
+        const meals: MealsByDate = {};
+        querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+          const data = doc.data();
+          const meal = {
+            id: doc.id,
+            name: data.name,
+            date: data.date,
+            order: data.order
+          };
+          if (meals[meal.date]) {
+            meals[meal.date].push(meal);
+          }
+          else {
+            meals[meal.date] = [meal];
+          }
+        });
+        setMeals(meals);
+        Object.keys(meals).forEach(date => {
+          const maxOrderOnDate = meals[date].length > 0 ? meals[date][meals[date].length - 1].order : 0;
+          setMaxOrdersByDate(prevState => ({
+            ...prevState,
+            [date]: maxOrderOnDate
+          }));
+        });
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching meals:", error);
+        setLoading(false);
+      }
+    );
+    return () => {
+      unsubscribe();
+    };
+  }, [user?.uid]);
+
+  return (
+    <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+      <StyledContainer>
+        {loading ? (<p>Loading...</p>) :
+          (days.map((day) => (
+            <MealPlanDay
+              key={day}
+              date={day}
+              meals={meals[day] ? meals[day] : []}
+              addingEnabled={addingEnabled}
+              onAddItem={handleAddItem}
+              onEditItem={handleEditItem}
+              onDeleteItem={handleDeleteItem}
+            />
+          )))
+        }
+      </StyledContainer>
+    </DragDropContext>
+  );
 }
