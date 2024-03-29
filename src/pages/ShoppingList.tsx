@@ -255,6 +255,7 @@ export default function ShoppingList() {
       },
       (error) => {
         console.error("Error fetching shopping list:", error);
+        setLoading(false);
       }
     );
 

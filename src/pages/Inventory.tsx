@@ -261,6 +261,7 @@ export default function Inventory() {
       },
       (error) => {
         console.error("Error fetching inventory:", error);
+        setLoading(false);
       }
     );
 
