@@ -29,7 +29,7 @@ const Container = styled.div`
 const StyledSection = styled.section`
   background-color: #f2f2f2;
   background-image: linear-gradient(#f2f2f2, white);
-  * {
+  h1, h2, p {
     margin-top: 0rem;
   }
   flex: 1;

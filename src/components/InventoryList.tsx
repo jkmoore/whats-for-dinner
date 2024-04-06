@@ -25,6 +25,7 @@ const StyledListItem = styled.li`
   box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
   list-style-type: none;
   cursor: pointer;
+  margin-top: 0rem;
 `;
 
 const DeleteItemButton = styled.img`

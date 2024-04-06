@@ -1,8 +1,21 @@
 import { User } from "firebase/auth";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { auth, firestore } from "../firebase";
-import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
+import {
+  DocumentData,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import MealPlanItem from "../components/mealPlanItem";
 import MealPlanDay from "../components/MealPlanDay";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
@@ -52,7 +65,7 @@ export default function MealPlan() {
 
   const handleEditItem = async (id: string, name: string) => {
     await updateDoc(doc(firestore, "mealPlan", id), {
-      name: name
+      name: name,
     }).catch((error) => {
       console.error("Error updating item:", error);
     });
@@ -64,41 +77,52 @@ export default function MealPlan() {
       await deleteDoc(itemRef);
       setMeals((prevMeals) => ({
         ...prevMeals,
-        [date]: prevMeals[date] ? prevMeals[date].filter(item => item.id !== itemId) : []
+        [date]: prevMeals[date]
+          ? prevMeals[date].filter((item) => item.id !== itemId)
+          : [],
       }));
     } catch (error) {
       console.error("Error deleting item:", error);
     }
-  }
+  };
 
   const handleMoveItem = async (
     itemId: string,
     sourceDate: string,
     destDate: string,
     sourceIndex: number,
-    destIndex: number,
+    destIndex: number
   ) => {
+    if (!meals[sourceDate]) {
+      return;
+    }
     const currentMealsByDate = JSON.parse(JSON.stringify(meals));
     const updatedMealsByDate = JSON.parse(JSON.stringify(meals));
     const [movedItem] = updatedMealsByDate[sourceDate].splice(sourceIndex, 1);
     if (!updatedMealsByDate[destDate]) {
       updatedMealsByDate[destDate] = [];
     }
-    updatedMealsByDate[destDate].splice(destIndex, 0, movedItem);  
+    updatedMealsByDate[destDate].splice(destIndex, 0, movedItem);
     setMeals(updatedMealsByDate);
-    const updatedOrders = updatedMealsByDate[destDate].map((item: MealPlanItem, index: number) => ({
-      id: item.id,
-      order: index,
-    }));
+    const updatedOrders = updatedMealsByDate[destDate].map(
+      (item: MealPlanItem, index: number) => ({
+        id: item.id,
+        order: index,
+      })
+    );
     try {
       await Promise.all(
-        updatedOrders.map(({ id, order }: { id: string, order: number }) =>
-          updateDoc(doc(firestore, "mealPlan", id), { order: order })
-        ),
+        updatedOrders.map(({ id, order }: { id: string; order: number }) => {
+          if (id === itemId) {
+            return updateDoc(doc(firestore, "mealPlan", id), {
+              order: order,
+              date: destDate,
+            });
+          } else {
+            return updateDoc(doc(firestore, "mealPlan", id), { order: order });
+          }
+        })
       );
-      if (sourceDate !== destDate) {
-        await updateDoc(doc(firestore, "mealPlan", itemId), { date: destDate });
-      }
     } catch (error) {
       console.error("Error updating orders in Firestore:", error);
       setMeals(currentMealsByDate);
@@ -107,17 +131,25 @@ export default function MealPlan() {
 
   const onDragStart = () => {
     setAddingEnabled(false);
-  }
+  };
 
   const onDragEnd = async (result: DropResult) => {
     const { draggableId, destination, source } = result;
+    if (
+      source &&
+      destination &&
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    ) {
+      return;
+    }
     if (destination) {
       await handleMoveItem(
         draggableId,
         source.droppableId,
         destination.droppableId,
         source.index,
-        destination.index,
+        destination.index
       );
     }
     setAddingEnabled(true);
@@ -134,28 +166,30 @@ export default function MealPlan() {
     const unsubscribe = onSnapshot(
       mealPlanRef,
       (querySnapshot: QuerySnapshot<DocumentData>) => {
-        const meals: MealsByDate = {};
+        const newMeals: MealsByDate = {};
         querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
           const data = doc.data();
           const meal = {
             id: doc.id,
             name: data.name,
             date: data.date,
-            order: data.order
+            order: data.order,
           };
-          if (meals[meal.date]) {
-            meals[meal.date].push(meal);
-          }
-          else {
-            meals[meal.date] = [meal];
+          if (newMeals[meal.date]) {
+            newMeals[meal.date].push(meal);
+          } else {
+            newMeals[meal.date] = [meal];
           }
         });
-        setMeals(meals);
-        Object.keys(meals).forEach(date => {
-          const maxOrderOnDate = meals[date].length > 0 ? meals[date][meals[date].length - 1].order : 0;
-          setMaxOrdersByDate(prevState => ({
+        setMeals(newMeals);
+        Object.keys(newMeals).forEach((date) => {
+          const maxOrderOnDate =
+            newMeals[date].length > 0
+              ? newMeals[date][newMeals[date].length - 1].order
+              : 0;
+          setMaxOrdersByDate((prevState) => ({
             ...prevState,
-            [date]: maxOrderOnDate
+            [date]: maxOrderOnDate,
           }));
         });
         setLoading(false);
@@ -170,22 +204,26 @@ export default function MealPlan() {
     };
   }, [user?.uid]);
 
+  const emptyMealsList = useMemo(() => [], []);
+
   return (
     <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
       <StyledContainer>
-        {loading ? (<p>Loading...</p>) :
-          (days.map((day) => (
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          days.map((day) => (
             <MealPlanDay
               key={day}
               date={day}
-              meals={meals[day] ? meals[day] : []}
+              meals={meals[day] ? meals[day] : emptyMealsList}
               addingEnabled={addingEnabled}
               onAddItem={handleAddItem}
               onEditItem={handleEditItem}
               onDeleteItem={handleDeleteItem}
             />
-          )))
-        }
+          ))
+        )}
       </StyledContainer>
     </DragDropContext>
   );
