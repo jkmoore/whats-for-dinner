@@ -7,6 +7,7 @@ import {
   QueryDocumentSnapshot,
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -18,6 +19,7 @@ import {
 import { auth, firestore } from "../firebase";
 import { User } from "firebase/auth";
 import { v4 as uuidv4 } from "uuid";
+import ConfirmModal from "./ConfirmModal";
 
 const RecipeDetailsContainer = styled.div`
   position: fixed;
@@ -108,6 +110,7 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
   const [recipeName, setRecipeName] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
   const user: User | null = auth.currentUser;
 
   useEffect(() => {
@@ -238,121 +241,159 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
     }
   };
 
+  const handleDeleteRecipe = async () => {
+    if (!recipeId) {
+      return;
+    }
+    try {
+      const recipeRef = doc(collection(firestore, "recipes"), recipeId);
+      await deleteDoc(recipeRef);
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+    }
+  };
+
   return (
-    <RecipeDetailsContainer>
-      {editMode ? (
-        <>
-          <RecipeHeader>
-            <button onClick={() => setIsOpen(false)}>{"<"}</button>
-            <input
-              placeholder={"Recipe name (100 characters max)"}
-              value={recipeName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setRecipeName(e.target.value)
-              }
-              maxLength={100}
-            />
-            <button onClick={handleSaveRecipeDetails}>Save</button>
-          </RecipeHeader>
-          <RecipeContents>
-            <IngredientsContainer>
-              <h2>Ingredients</h2>
-              <IngredientsEditorContainer>
-                {ingredients.map((ingredient: Ingredient, index: number) => (
-                  <div key={index}>
-                    <input
-                      value={ingredient.name}
-                      placeholder={"Ingredient name (50 characters max)"}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const newIngredients = [...ingredients];
-                        newIngredients[index].name = e.target.value;
-                        setIngredients(newIngredients);
-                      }}
-                      maxLength={50}
-                    />
-                    <input
-                      value={ingredient.quantity}
-                      placeholder={"Quantity (50 characters max)"}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const newIngredients = [...ingredients];
-                        newIngredients[index].quantity = e.target.value;
-                        setIngredients(newIngredients);
-                      }}
-                      maxLength={50}
-                    />
-                    <input
-                      type="checkbox"
-                      checked={ingredient.required}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const newIngredients = [...ingredients];
-                        newIngredients[index].required = e.target.checked;
-                        setIngredients(newIngredients);
-                      }}
-                    />
-                    <button
-                      onClick={() =>
-                        setIngredients(
-                          ingredients.filter((_, i) => i !== index)
-                        )
-                      }
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-                <button
-                  onClick={() =>
-                    setIngredients([
-                      ...ingredients,
-                      { id: uuidv4(), name: "", quantity: "", required: true },
-                    ])
-                  }
-                >
-                  + Add ingredient
-                </button>
-              </IngredientsEditorContainer>
-            </IngredientsContainer>
-            <NotesContainer>
-              <h2>Notes</h2>
-              <NotesTextArea
-                placeholder={"Add your notes (steps, tips, etc.)"}
-                value={notes}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setNotes(e.target.value)
-                }
-              />
-            </NotesContainer>
-          </RecipeContents>
-        </>
-      ) : (
-        <>
-          <RecipeHeader>
-            <button onClick={() => setIsOpen(false)}>{"<"}</button>
-            <RecipeName>{recipeName ? recipeName : "Untitled"}</RecipeName>
-            <button onClick={() => setEditMode(true)}>Edit</button>
-          </RecipeHeader>
-          <RecipeContents>
-            <IngredientsContainer>
-              <h2>Ingredients</h2>
-              <IngredientsList>
-                {ingredients.map((ingredient: Ingredient, index: number) => (
-                  <li key={index}>
-                    {!ingredient.required && "(optional) "}
-                    {ingredient.name.length > 0
-                      ? ingredient.name
-                      : "New ingredient"}
-                    {ingredient.quantity && " - " + ingredient.quantity}
-                  </li>
-                ))}
-              </IngredientsList>
-            </IngredientsContainer>
-            <NotesContainer>
-              <h2>Notes</h2>
-              <NotesText>{notes}</NotesText>
-            </NotesContainer>
-          </RecipeContents>
-        </>
+    <>
+      {confirmModalOpen && (
+        <ConfirmModal
+          mainText={"Delete recipe?"}
+          confirmText={"Delete"}
+          onConfirm={handleDeleteRecipe}
+          setIsOpen={setConfirmModalOpen}
+        />
       )}
-    </RecipeDetailsContainer>
+      <RecipeDetailsContainer>
+        {editMode ? (
+          <>
+            <RecipeHeader>
+              <button onClick={() => setIsOpen(false)}>{"<"}</button>
+              <input
+                placeholder={"Recipe name (100 characters max)"}
+                value={recipeName}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setRecipeName(e.target.value)
+                }
+                maxLength={100}
+              />
+              <div>
+                <button onClick={handleSaveRecipeDetails}>Save</button>
+                <button onClick={() => setConfirmModalOpen(true)}>
+                  Delete
+                </button>
+              </div>
+            </RecipeHeader>
+            <RecipeContents>
+              <IngredientsContainer>
+                <h2>Ingredients</h2>
+                <IngredientsEditorContainer>
+                  {ingredients.map((ingredient: Ingredient, index: number) => (
+                    <div key={index}>
+                      <input
+                        value={ingredient.name}
+                        placeholder={"Ingredient name (50 characters max)"}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const newIngredients = [...ingredients];
+                          newIngredients[index].name = e.target.value;
+                          setIngredients(newIngredients);
+                        }}
+                        maxLength={50}
+                      />
+                      <input
+                        value={ingredient.quantity}
+                        placeholder={"Quantity (50 characters max)"}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const newIngredients = [...ingredients];
+                          newIngredients[index].quantity = e.target.value;
+                          setIngredients(newIngredients);
+                        }}
+                        maxLength={50}
+                      />
+                      <input
+                        type="checkbox"
+                        checked={ingredient.required}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const newIngredients = [...ingredients];
+                          newIngredients[index].required = e.target.checked;
+                          setIngredients(newIngredients);
+                        }}
+                      />
+                      <button
+                        onClick={() =>
+                          setIngredients(
+                            ingredients.filter((_, i) => i !== index)
+                          )
+                        }
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() =>
+                      setIngredients([
+                        ...ingredients,
+                        {
+                          id: uuidv4(),
+                          name: "",
+                          quantity: "",
+                          required: true,
+                        },
+                      ])
+                    }
+                  >
+                    + Add ingredient
+                  </button>
+                </IngredientsEditorContainer>
+              </IngredientsContainer>
+              <NotesContainer>
+                <h2>Notes</h2>
+                <NotesTextArea
+                  placeholder={"Add your notes (steps, tips, etc.)"}
+                  value={notes}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setNotes(e.target.value)
+                  }
+                />
+              </NotesContainer>
+            </RecipeContents>
+          </>
+        ) : (
+          <>
+            <RecipeHeader>
+              <button onClick={() => setIsOpen(false)}>{"<"}</button>
+              <RecipeName>{recipeName ? recipeName : "Untitled"}</RecipeName>
+              <div>
+                <button onClick={() => setEditMode(true)}>Edit</button>
+                <button onClick={() => setConfirmModalOpen(true)}>
+                  Delete
+                </button>
+              </div>
+            </RecipeHeader>
+            <RecipeContents>
+              <IngredientsContainer>
+                <h2>Ingredients</h2>
+                <IngredientsList>
+                  {ingredients.map((ingredient: Ingredient, index: number) => (
+                    <li key={index}>
+                      {!ingredient.required && "(optional) "}
+                      {ingredient.name.length > 0
+                        ? ingredient.name
+                        : "New ingredient"}
+                      {ingredient.quantity && " - " + ingredient.quantity}
+                    </li>
+                  ))}
+                </IngredientsList>
+              </IngredientsContainer>
+              <NotesContainer>
+                <h2>Notes</h2>
+                <NotesText>{notes}</NotesText>
+              </NotesContainer>
+            </RecipeContents>
+          </>
+        )}
+      </RecipeDetailsContainer>
+    </>
   );
 }
