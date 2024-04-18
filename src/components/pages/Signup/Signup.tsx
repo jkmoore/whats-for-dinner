@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { User, createUserWithEmailAndPassword, sendEmailVerification, signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../../../firebase";
 import {
   StyledFormBackground,
   StyledFormContainer,
@@ -12,7 +12,7 @@ import {
   ErrorMessage,
   StyledText,
   StyledTextCenter
-} from "../components/StyledAuthForm";
+} from "../../StyledAuthForm";
 
 export default function Signup() {
   const [email, setEmail] = useState("");

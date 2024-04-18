@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import RecipeDetails from "../components/RecipeDetails";
+import RecipeDetails from "./RecipeDetails";
 import styled from "styled-components";
 import { User } from "firebase/auth";
-import { auth, firestore } from "../firebase";
+import { auth, firestore } from "../../../firebase";
 import {
   DocumentData,
   QueryDocumentSnapshot,
@@ -13,7 +13,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import Recipe from "../components/recipe";
+import Recipe from "./recipe";
 
 const AddRecipeButton = styled.img`
   height: 2rem;

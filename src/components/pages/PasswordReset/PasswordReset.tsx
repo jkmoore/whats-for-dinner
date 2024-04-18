@@ -11,7 +11,7 @@ import {
   StyledText,
   StyledHeader,
   StyledTextCenter
-} from "../components/StyledAuthForm";
+} from "../../StyledAuthForm";
 import { NavLink } from "react-router-dom";
 
 export default function PasswordReset() {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { auth, firestore } from "../firebase";
+import { auth, firestore } from "../../../firebase";
 import {
   DocumentData,
   QueryDocumentSnapshot,
@@ -15,10 +15,10 @@ import {
   where,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
-import InventoryModal from "../components/InventoryModal";
-import InventoryItem from "../components/inventoryItem";
+import ShoppingListItem from "./shoppingListItem";
 import styled from "styled-components";
-import InventoryList from "../components/InventoryList";
+import ShoppingListModal from "./ShoppingListModal";
+import ShoppingListList from "./ShoppingListList";
 
 const StyledHeader = styled.div`
   display: flex;
@@ -36,7 +36,7 @@ const SearchBar = styled.input`
   margin-left: 0.5rem;
   box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
   font-size: 1rem;
-  ${({ theme }) => theme.breakpoints.down('sm')} {
+  ${({ theme }) => theme.breakpoints.down("sm")} {
     font-size: 0.9rem;
   }
 
@@ -65,15 +65,15 @@ const StyledDiv = styled.div`
   padding-bottom: 2rem;
   padding-left: 3rem;
   padding-right: 3rem;
-  ${({ theme }) => theme.breakpoints.down('sm')} {
+  ${({ theme }) => theme.breakpoints.down("sm")} {
     padding: 1rem;
     font-size: 0.9rem;
   }
-  ${({ theme }) => theme.breakpoints.up('xl')} {
+  ${({ theme }) => theme.breakpoints.up("xl")} {
     padding-left: 8rem;
     padding-right: 8rem;
   }
-  ${({ theme }) => theme.breakpoints.up('xxl')} {
+  ${({ theme }) => theme.breakpoints.up("xxl")} {
     padding-left: 15rem;
     padding-right: 15rem;
   }
@@ -81,14 +81,15 @@ const StyledDiv = styled.div`
 
 type ModalMode = "add" | "edit";
 
-export default function Inventory() {
+export default function ShoppingList() {
   const [loading, setLoading] = useState<boolean>(true);
   const [maxOrder, setMaxOrder] = useState<number>(0);
-  const [inventory, setInventory] = useState<DocumentData[]>([]);
+  const [shoppingList, setShoppingList] = useState<DocumentData[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<ModalMode>("add");
   const [itemToEdit, setItemToEdit] = useState<string | null>(null);
-  const [selectedItemData, setSelectedItemData] = useState<InventoryItem | null>(null);
+  const [selectedItemData, setSelectedItemData] =
+    useState<ShoppingListItem | null>(null);
   const [searchResults, setSearchResults] = useState<DocumentData[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
 
@@ -100,7 +101,7 @@ export default function Inventory() {
     }
   }, [showModal]);
 
-  const handleSubmitItem = (newItem: InventoryItem) => {
+  const handleSubmitItem = (newItem: ShoppingListItem) => {
     if (modalMode === "add") {
       handleAddItem(newItem);
     } else {
@@ -109,9 +110,9 @@ export default function Inventory() {
     }
   };
 
-  const handleAddItem = async (newItem: InventoryItem) => {
+  const handleAddItem = async (newItem: ShoppingListItem) => {
     const lowercaseName = newItem.name.toLowerCase();
-    addDoc(collection(firestore, "inventory"), {
+    addDoc(collection(firestore, "shoppingList"), {
       ...newItem,
       lowercaseName: lowercaseName,
       order: maxOrder + 1,
@@ -121,11 +122,11 @@ export default function Inventory() {
     });
   };
 
-  const handleEditItem = async (newItem: InventoryItem) => {
+  const handleEditItem = async (newItem: ShoppingListItem) => {
     try {
       if (itemToEdit) {
         const lowercaseName = newItem.name.toLowerCase();
-        await updateDoc(doc(firestore, "inventory", itemToEdit), {
+        await updateDoc(doc(firestore, "shoppingList", itemToEdit), {
           ...newItem,
           lowercaseName: lowercaseName,
         });
@@ -140,10 +141,10 @@ export default function Inventory() {
 
   const handleDeleteItem = async (itemId: string | undefined) => {
     try {
-      const itemRef = doc(collection(firestore, "inventory"), itemId);
+      const itemRef = doc(collection(firestore, "shoppingList"), itemId);
       await deleteDoc(itemRef);
-      setInventory((prevInventory) =>
-        prevInventory.filter((item) => item.id !== itemId)
+      setShoppingList((prevShoppingList) =>
+        prevShoppingList.filter((item) => item.id !== itemId)
       );
     } catch (error) {
       console.error("Error deleting item:", error);
@@ -153,14 +154,7 @@ export default function Inventory() {
   const handleClickItem = (item: DocumentData) => {
     setModalMode("edit");
     setItemToEdit(item.id);
-    if (item.expiration) {
-      setSelectedItemData({
-        name: item.name,
-        expiration: item.expiration.toDate(),
-      });
-    } else {
-      setSelectedItemData({ name: item.name, expiration: null });
-    }
+    setSelectedItemData({ name: item.name });
     setShowModal(true);
   };
 
@@ -170,10 +164,10 @@ export default function Inventory() {
     if (queryInputValue) {
       setIsSearching(true);
       const searchRef = query(
-        collection(firestore, "inventory"),
+        collection(firestore, "shoppingList"),
         where("userId", "==", user?.uid),
         where("lowercaseName", ">=", queryInputValue),
-        where("lowercaseName", "<=", queryInputValue + "\uf8ff"),
+        where("lowercaseName", "<=", queryInputValue + "\uf8ff")
       );
 
       onSnapshot(
@@ -188,7 +182,7 @@ export default function Inventory() {
           setSearchResults(sortedResults);
         },
         (error) => {
-          console.error("Error searching inventory:", error);
+          console.error("Error searching shopping list:", error);
         }
       );
     } else {
@@ -202,34 +196,34 @@ export default function Inventory() {
     source: number,
     destination: number
   ) => {
-    const updatedInventory = [...inventory];
-    const currentInventory = [...inventory];
-    const movedItem = currentInventory.find((item) => item.id === itemId);
+    const updatedShoppingList = [...shoppingList];
+    const currentShoppingList = [...shoppingList];
+    const movedItem = currentShoppingList.find((item) => item.id === itemId);
     if (!movedItem) {
       console.error(`Error: no item ${itemId} found at position ${source}`);
       return;
     }
-    updatedInventory.splice(source, 1);
-    updatedInventory.splice(destination, 0, movedItem);
-    setInventory(updatedInventory);
-    const updatedOrders = updatedInventory.map((item, index) => ({
+    updatedShoppingList.splice(source, 1);
+    updatedShoppingList.splice(destination, 0, movedItem);
+    setShoppingList(updatedShoppingList);
+    const updatedOrders = updatedShoppingList.map((item, index) => ({
       id: item.id,
       order: index,
     }));
     try {
       await Promise.all(
         updatedOrders.map(({ id, order }) =>
-          updateDoc(doc(firestore, "inventory", id), { order })
+          updateDoc(doc(firestore, "shoppingList", id), { order })
         )
       );
     } catch (error) {
       console.error("Error updating orders in Firestore:", error);
-      setInventory(currentInventory);
+      setShoppingList(currentShoppingList);
     }
   };
 
-  const InventoryListProps = {
-    items: isSearching ? searchResults : inventory,
+  const ListProps = {
+    items: isSearching ? searchResults : shoppingList,
     onClickItem: handleClickItem,
     onDeleteItem: handleDeleteItem,
     onMoveItem: handleMoveItem,
@@ -238,7 +232,7 @@ export default function Inventory() {
 
   useEffect(() => {
     const inventoryRef = query(
-      collection(firestore, "inventory"),
+      collection(firestore, "shoppingList"),
       orderBy("order"),
       where("userId", "==", user?.uid)
     );
@@ -253,14 +247,14 @@ export default function Inventory() {
           const item = { id: doc.id, ...doc.data() };
           items.push(item);
         });
-        setInventory(items);
+        setShoppingList(items);
         const currentMaxOrder =
           items.length > 0 ? items[items.length - 1].order : 0;
         setMaxOrder(currentMaxOrder);
         setLoading(false);
       },
       (error) => {
-        console.error("Error fetching inventory:", error);
+        console.error("Error fetching shopping list:", error);
         setLoading(false);
       }
     );
@@ -288,7 +282,7 @@ export default function Inventory() {
         />
       </StyledHeader>
       {showModal && (
-        <InventoryModal
+        <ShoppingListModal
           setIsOpen={setShowModal}
           onSubmitItem={handleSubmitItem}
           defaultData={selectedItemData}
@@ -299,10 +293,10 @@ export default function Inventory() {
         <p>Loading...</p>
       ) : isSearching && searchResults.length === 0 ? (
         <p>No matching items found.</p>
-      ) : inventory.length === 0 ? (
+      ) : shoppingList.length === 0 ? (
         <p>No items in your inventory.</p>
       ) : (
-        <InventoryList {...InventoryListProps} />
+        <ShoppingListList {...ListProps} />
       )}
     </StyledDiv>
   );

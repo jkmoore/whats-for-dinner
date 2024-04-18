@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { sendEmailVerification, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../../../firebase";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   StyledFormBackground,
@@ -11,7 +11,7 @@ import {
   StyledForm,
   ErrorMessage,
   StyledTextCenter
-} from "../components/StyledAuthForm";
+} from "../../../components/StyledAuthForm";
 
 export default function Login() {
   const navigate = useNavigate();

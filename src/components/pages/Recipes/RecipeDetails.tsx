@@ -16,7 +16,7 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import { auth, firestore } from "../firebase";
+import { auth, firestore } from "../../../firebase";
 import { User } from "firebase/auth";
 import { v4 as uuidv4 } from "uuid";
 import ConfirmModal from "./ConfirmModal";
