@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import RecipeDetails from "./RecipeDetails";
 import styled from "styled-components";
 import { User } from "firebase/auth";
@@ -8,12 +8,37 @@ import {
   QueryDocumentSnapshot,
   QuerySnapshot,
   collection,
+  doc,
+  getDoc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
   where,
 } from "firebase/firestore";
 import Recipe from "./recipe";
+
+const INGREDIENT_SEARCH_CHUNK_SIZE = 30;
+
+const StyledHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 0rem;
+  margin: 0.5rem 0;
+`;
+
+const SearchBarContainer = styled.div`
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
+`;
+
+const SearchTermsContainer = styled.div`
+  display: flex;
+  padding: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+`;
 
 const AddRecipeButton = styled.img`
   height: 2rem;
@@ -26,11 +51,52 @@ const AddRecipeButton = styled.img`
   }
 `;
 
-const PageContainer = styled.div`
-  padding: 2rem 3rem;
+const SearchBar = styled.input`
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem 0 0 0.5rem;
+  outline: none;
+  width: 100%;
+  margin-left: 0.5rem;
+  box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
+  font-size: 1rem;
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    font-size: 0.9rem;
+  }
+
+  ::placeholder {
+    color: #ccc;
+  }
+
+  &:focus {
+    outline: 0.1rem solid #ccc;
+  }
 `;
 
-const RecipesListContainer = styled.div``;
+const PageContainer = styled.div`
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+  ${({ theme }) => theme.breakpoints.up("xl")} {
+    padding-left: 8rem;
+    padding-right: 8rem;
+  }
+  ${({ theme }) => theme.breakpoints.up("xxl")} {
+    padding-left: 15rem;
+    padding-right: 15rem;
+  }
+`;
+
+const RecipesListContainer = styled.ul`
+  padding: 0rem;
+`;
 
 const RecipeContainer = styled.div`
   padding: 0.75rem;
@@ -46,11 +112,50 @@ const RecipeContainer = styled.div`
   margin-bottom: 0.5rem;
 `;
 
+const DeleteButton = styled.img`
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+  &:hover {
+    opacity: 0.7;
+    background-color: #ccc;
+  }
+`;
+
+const SearchTerm = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+`;
+
+const RecipesSearchButton = styled.button<{ $selected: boolean }>`
+  background-color: ${(props) => (props.$selected ? "#ccc" : "initial")};
+  height: 100%;
+  border: 1px solid #ccc;
+`;
+
+const IngredientsSearchButton = styled.button<{ $selected: boolean }>`
+  background-color: ${(props) => (props.$selected ? "#ccc" : "initial")};
+  height: 100%;
+  border-radius: 0 0.5rem 0.5rem 0;
+  border: 1px solid #ccc;
+`;
+
+type SearchMode = "recipes" | "ingredients";
+
 export default function Recipes() {
   const [loading, setLoading] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [searchResults, setSearchResults] = useState<Recipe[]>([]);
+  const [searchMode, setSearchMode] = useState<SearchMode>("recipes");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [showRecipe, setShowRecipe] = useState<boolean>(false);
   const [idOfRecipeToOpen, setIdOfRecipeToOpen] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchedIngredients, setSearchedIngredients] = useState<string[]>([]);
   const user: User | null = auth.currentUser;
 
   useEffect(() => {
@@ -58,7 +163,7 @@ export default function Recipes() {
     const recipeRef = query(
       collection(firestore, "recipes"),
       where("userId", "==", user?.uid),
-      orderBy("name")
+      orderBy("lowercaseName")
     );
     const unsubscribe = onSnapshot(
       recipeRef,
@@ -85,22 +190,240 @@ export default function Recipes() {
     };
   }, [user?.uid]);
 
+  const searchByIngredients = useCallback(
+    async (ingredients: string[]) => {
+      setLoading(true);
+
+      const ingredientChunks: string[][] = [];
+      for (
+        let i = 0;
+        i < ingredients.length;
+        i += INGREDIENT_SEARCH_CHUNK_SIZE
+      ) {
+        ingredientChunks.push(
+          ingredients.slice(i, i + INGREDIENT_SEARCH_CHUNK_SIZE)
+        );
+      }
+
+      try {
+        const snapshots = await Promise.all(
+          ingredientChunks.map(async (chunk) => {
+            const searchRef = query(
+              collection(firestore, "ingredients"),
+              where("userId", "==", user?.uid),
+              where("lowercaseName", "in", chunk)
+            );
+            return await getDocs(searchRef);
+          })
+        );
+        const recipeMatchPercentages: { [key: string]: number } = {};
+        const numIngredients = ingredients.length;
+
+        snapshots.forEach((querySnapshot) => {
+          querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+            const recipeId = doc.data().recipeId;
+            if (!recipeMatchPercentages[recipeId]) {
+              recipeMatchPercentages[recipeId] = 0;
+            }
+            recipeMatchPercentages[recipeId] += (1 / numIngredients) * 100;
+          });
+        });
+        const sortedResults = Object.keys(recipeMatchPercentages).sort(
+          (a, b) => {
+            return recipeMatchPercentages[b] - recipeMatchPercentages[a];
+          }
+        );
+        const recipes = await Promise.all(
+          sortedResults.map(async (recipeId) => {
+            const recipeDoc = await getDoc(doc(firestore, "recipes", recipeId));
+            if (recipeDoc.exists()) {
+              const data = recipeDoc.data();
+              return {
+                id: recipeId,
+                ...data,
+              } as Recipe;
+            } else {
+              return null;
+            }
+          })
+        );
+        setSearchResults(
+          recipes.filter((recipe) => recipe !== null) as Recipe[]
+        );
+        setLoading(false);
+      } catch (error) {
+        console.error("Error searching recipes:", error);
+        setLoading(false);
+      }
+    },
+    [user?.uid]
+  );
+
+  useEffect(() => {
+    if (searchMode === "ingredients") {
+      if (searchedIngredients.length > 0) {
+        setIsSearching(true);
+        searchByIngredients(searchedIngredients);
+      } else {
+        setIsSearching(false);
+        setSearchResults([]);
+      }
+    }
+  }, [searchByIngredients, searchMode, searchedIngredients]);
+
+  const searchByRecipe = (queryInputValue: string) => {
+    setLoading(true);
+    const searchRef = query(
+      collection(firestore, "recipes"),
+      where("userId", "==", user?.uid),
+      where("lowercaseName", ">=", queryInputValue),
+      where("lowercaseName", "<=", queryInputValue + "\uf8ff")
+    );
+
+    onSnapshot(
+      searchRef,
+      (querySnapshot: QuerySnapshot<DocumentData>) => {
+        const results: Recipe[] = [];
+        querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+          const data = doc.data();
+          const recipe = {
+            id: doc.id,
+            name: data.name,
+          };
+          results.push(recipe);
+        });
+        const sortedResults = results.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        setSearchResults(sortedResults);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error searching recipes:", error);
+        setLoading(false);
+      }
+    );
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    if (searchMode === "recipes") {
+      const queryInputValue = event.target.value.trim().toLowerCase();
+      if (queryInputValue) {
+        setIsSearching(true);
+        searchByRecipe(queryInputValue);
+      } else {
+        setIsSearching(false);
+        setSearchResults([]);
+      }
+    }
+  };
+
+  const handleEnterSearch = () => {
+    if (searchMode === "ingredients") {
+      const queryInputValue = searchTerm.trim().toLowerCase();
+      if (queryInputValue) {
+        if (!searchedIngredients.includes(queryInputValue)) {
+          setSearchedIngredients((prevIngredients) => [
+            ...prevIngredients,
+            queryInputValue,
+          ]);
+          setSearchTerm("");
+        }
+      }
+    }
+  };
+
+  const onDeleteSearchTerm = (index: number) => {
+    setSearchedIngredients((prevIngredients) =>
+      prevIngredients.filter((_, i) => i !== index)
+    );
+  };
+
+  const handleAddRecipeButtonClicked = () => {
+    setIdOfRecipeToOpen(null);
+    setShowRecipe(true);
+  };
+
+  const handleSetSearchMode = (newSearchMode: SearchMode) => {
+    setSearchTerm("");
+    setSearchMode(newSearchMode);
+    if (newSearchMode === "recipes") {
+      setIsSearching(false);
+    }
+  };
+
   return (
     <>
       {showRecipe ? (
         <RecipeDetails setIsOpen={setShowRecipe} id={idOfRecipeToOpen} />
       ) : (
         <PageContainer>
-          <AddRecipeButton
-            src={process.env.PUBLIC_URL + "/buttonAddItem.svg"}
-            onClick={() => {
-              setIdOfRecipeToOpen(null);
-              setShowRecipe(true);
-            }}
-          />
+          <StyledHeader>
+            <SearchBarContainer>
+              <AddRecipeButton
+                src={process.env.PUBLIC_URL + "/buttonAddItem.svg"}
+                onClick={handleAddRecipeButtonClicked}
+              />
+              <SearchBar
+                id="search"
+                placeholder="Search for a recipe"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleEnterSearch();
+                  }
+                }}
+              />
+              <RecipesSearchButton
+                onClick={() => handleSetSearchMode("recipes")}
+                $selected={searchMode === "recipes"}
+              >
+                Search by recipe name
+              </RecipesSearchButton>
+              <IngredientsSearchButton
+                onClick={() => handleSetSearchMode("ingredients")}
+                $selected={searchMode === "ingredients"}
+              >
+                Search by ingredient
+              </IngredientsSearchButton>
+            </SearchBarContainer>
+            {searchMode === "ingredients" && searchedIngredients.length > 0 && (
+              <SearchTermsContainer>
+                {searchedIngredients &&
+                  searchedIngredients.map((ingredient, index) => (
+                    <SearchTerm key={index}>
+                      <DeleteButton
+                        src={process.env.PUBLIC_URL + "/buttonDeleteMeal.svg"}
+                        alt="Remove search term"
+                        onClick={() => onDeleteSearchTerm(index)}
+                      />
+                      <div>{ingredient}</div>
+                    </SearchTerm>
+                  ))}
+              </SearchTermsContainer>
+            )}
+          </StyledHeader>
           <RecipesListContainer>
             {loading ? (
               <p>Loading...</p>
+            ) : isSearching && searchResults.length === 0 ? (
+              <p>No matching recipes found.</p>
+            ) : recipes.length === 0 ? (
+              <p>No recipes in your inventory.</p>
+            ) : isSearching && searchResults.length > 0 ? (
+              searchResults.map((recipe, index) => (
+                <RecipeContainer
+                  key={index}
+                  onClick={() => {
+                    setIdOfRecipeToOpen(recipe.id);
+                    setShowRecipe(true);
+                  }}
+                >
+                  {recipe.name}
+                </RecipeContainer>
+              ))
             ) : (
               recipes.map((recipe, index) => (
                 <RecipeContainer

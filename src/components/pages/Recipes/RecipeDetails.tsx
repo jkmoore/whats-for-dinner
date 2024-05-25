@@ -160,6 +160,7 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
       if (!recipeId) {
         const recipeDocRef = await addDoc(collection(firestore, "recipes"), {
           name: recipeName,
+          lowercaseName: recipeName.toLowerCase(),
           notes: notes,
           userId: user?.uid,
         });
@@ -168,6 +169,7 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
       } else {
         await updateDoc(doc(firestore, "recipes", recipeId), {
           name: recipeName,
+          lowercaseName: recipeName.toLowerCase(),
           notes: notes,
         });
       }
@@ -204,7 +206,9 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
       ingredientsToAdd.forEach((ingredient) => {
         batch.set(doc(ingredientsRef), {
           recipeId: currentRecipeId,
+          lowercaseName: ingredient.name.toLowerCase(),
           ...ingredient,
+          userId: user?.uid,
         });
       });
 
@@ -216,6 +220,7 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
         const querySnapshot = await getDocs(queryRef);
         querySnapshot.forEach((doc) => {
           batch.update(doc.ref, {
+            lowercaseName: ingredient.name.toLowerCase(),
             name: ingredient.name,
             quantity: ingredient.quantity,
             required: ingredient.required,
@@ -234,8 +239,6 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
       await batch.commit();
 
       setEditMode(false);
-
-      console.log("success");
     } catch (error) {
       console.error("Error saving changes:", error);
     }
@@ -243,14 +246,15 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
 
   const handleDeleteRecipe = async () => {
     if (!recipeId) {
-      return;
-    }
-    try {
-      const recipeRef = doc(collection(firestore, "recipes"), recipeId);
-      await deleteDoc(recipeRef);
       setIsOpen(false);
-    } catch (error) {
-      console.error("Error deleting recipe:", error);
+    } else {
+      try {
+        const recipeRef = doc(collection(firestore, "recipes"), recipeId);
+        await deleteDoc(recipeRef);
+        setIsOpen(false);
+      } catch (error) {
+        console.error("Error deleting recipe:", error);
+      }
     }
   };
 
