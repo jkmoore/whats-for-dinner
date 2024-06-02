@@ -20,6 +20,7 @@ import { auth, firestore } from "../../../firebase";
 import { User } from "firebase/auth";
 import { v4 as uuidv4 } from "uuid";
 import ConfirmModal from "./ConfirmModal";
+import { RecipeType } from "./searchModifierTypes";
 
 const RecipeDetailsContainer = styled.div`
   position: fixed;
@@ -37,7 +38,7 @@ const RecipeHeader = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  height: 5rem;
+  height: 7rem;
   width: 100%;
   border-bottom: 1px solid #d9d9d9;
   background-color: white;
@@ -45,11 +46,57 @@ const RecipeHeader = styled.div`
   padding: 1rem;
 `;
 
+const RecipeTypeTag = styled.p`
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+  font-size: 0.9rem;
+  margin: 0rem;
+`;
+
+const RecipeTimeTag = styled.p`
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+  font-size: 0.9rem;
+  margin: 0rem;
+`;
+
+const HeaderEditorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
+const TypeTimeEditorContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    flex-direction: column;
+  }
+  gap: 0.5rem;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    flex-direction: column;
+  }
+  gap: 0.25rem;
+`;
+
 const RecipeContents = styled.div`
   display: flex;
   flex-direction: row;
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    flex-direction: column;
+  }
   position: absolute;
-  top: 5rem;
+  top: 7rem;
   left: 0;
   right: 0;
   bottom: 0rem;
@@ -58,6 +105,12 @@ const RecipeContents = styled.div`
 const IngredientsContainer = styled.div`
   padding: 2rem;
   width: 50%;
+  ${({ theme }) => theme.breakpoints.down("md")} {
+    padding: 1rem;
+  }
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    width: 100%;
+  }
   height: 100%;
   overflow-wrap: break-word;
   box-sizing: border-box;
@@ -74,11 +127,44 @@ const IngredientsEditorContainer = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const IngredientEditorContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+`;
+
+const DeleteIngredientButton = styled.img`
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  border-radius: 50%;
+  border: solid 0.5px grey;
+  padding: 0.1rem;
+  box-sizing: border-box;
+  &:hover {
+    opacity: 0.7;
+    background-color: #ccc;
+  }
+`;
+
+const StyledIngredientInput = styled.input`
+  flex: 1 1 auto; /* Allows the input to grow and shrink */
+  min-width: 5rem; /* Set a reasonable minimum width for the input */
 `;
 
 const NotesContainer = styled.div`
   padding: 2rem;
   width: 50%;
+  ${({ theme }) => theme.breakpoints.down("md")} {
+    padding: 1rem;
+  }
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    width: 100%;
+  }
   height: 100%;
   overflow-wrap: break-word;
   display: flex;
@@ -88,11 +174,27 @@ const NotesContainer = styled.div`
 
 const NotesText = styled.p`
   overflow-y: auto;
+  white-space: pre-wrap;
+`;
+
+const RecipeNameAndTags = styled.div`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   margin: 0rem;
+  display: flex;
+  flex-direction: column;
 `;
 
 const RecipeName = styled.h1`
-  margin: 0rem;
+  margin: 0.5rem;
+  align-self: center;
+`;
+
+const TagContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
 `;
 
 const NotesTextArea = styled(TextareaAutosize)`
@@ -108,9 +210,13 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
   const [recipeId, setRecipeId] = useState<string | null>(id);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [recipeName, setRecipeName] = useState<string>("");
+  const [recipeType, setRecipeType] = useState<RecipeType | null>(null);
+  const [recipeTime, setRecipeTime] = useState<number | null>(null);
   const [notes, setNotes] = useState<string>("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
+  const [loadingBasicInfo, setLoadingBasicInfo] = useState<boolean>(false);
+  const [loadingIngredients, setLoadingIngredients] = useState<boolean>(false);
   const user: User | null = auth.currentUser;
 
   useEffect(() => {
@@ -118,13 +224,19 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
       return;
     }
     const fetchRecipe = async () => {
+      setLoadingBasicInfo(true);
+      setLoadingIngredients(true);
       try {
         const recipeDoc = await getDoc(
           doc(collection(firestore, "recipes"), id)
         );
         if (recipeDoc.exists()) {
-          setRecipeName(recipeDoc.data().name);
-          setNotes(recipeDoc.data().notes);
+          const data = recipeDoc.data();
+          setRecipeName(data.name);
+          setRecipeType(data.type);
+          setRecipeTime(data.time);
+          setNotes(data.notes);
+          setLoadingBasicInfo(false);
 
           const ingredientsQuerySnapshot = await getDocs(
             query(
@@ -139,16 +251,20 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
               id: doc.id,
               name: data.name,
               quantity: data.quantity,
-              required: data.required,
             };
             foundIngredients.push(ingredient);
           });
           setIngredients(foundIngredients);
+          setLoadingIngredients(false);
         } else {
           console.error("Recipe does not exist");
+          setLoadingBasicInfo(false);
+          setLoadingIngredients(false);
         }
       } catch (error) {
         console.error("Error fetching recipe:", error);
+        setLoadingBasicInfo(false);
+        setLoadingIngredients(false);
       }
     };
     fetchRecipe();
@@ -162,6 +278,8 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
           name: recipeName,
           lowercaseName: recipeName.toLowerCase(),
           notes: notes,
+          type: recipeType,
+          time: recipeTime,
           userId: user?.uid,
         });
         setRecipeId(recipeDocRef.id);
@@ -171,6 +289,8 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
           name: recipeName,
           lowercaseName: recipeName.toLowerCase(),
           notes: notes,
+          type: recipeType,
+          time: recipeTime,
         });
       }
 
@@ -223,7 +343,6 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
             lowercaseName: ingredient.name.toLowerCase(),
             name: ingredient.name,
             quantity: ingredient.quantity,
-            required: ingredient.required,
           });
         });
       }
@@ -258,6 +377,20 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
     }
   };
 
+  const handleRecipeTypeChange = (newType: string) => {
+    if (
+      newType === "main" ||
+      newType === "side" ||
+      newType === "dessert" ||
+      newType === "beverage"
+    ) {
+      setRecipeType(newType);
+    }
+    if (newType === "") {
+      setRecipeType(null);
+    }
+  };
+
   return (
     <>
       {confirmModalOpen && (
@@ -273,30 +406,61 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
           <>
             <RecipeHeader>
               <button onClick={() => setIsOpen(false)}>{"<"}</button>
-              <input
-                placeholder={"Recipe name (100 characters max)"}
-                value={recipeName}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setRecipeName(e.target.value)
-                }
-                maxLength={100}
-              />
-              <div>
+              <HeaderEditorContainer>
+                <input
+                  placeholder={"Recipe name (100 characters max)"}
+                  value={recipeName}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setRecipeName(e.target.value)
+                  }
+                  maxLength={100}
+                />
+                <TypeTimeEditorContainer>
+                  <select
+                    value={recipeType ? recipeType : ""}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      handleRecipeTypeChange(e.target.value)
+                    }
+                  >
+                    <option value="">Select a recipe type</option>
+                    <option value="main">Main</option>
+                    <option value="side">Side</option>
+                    <option value="dessert">Dessert</option>
+                    <option value="beverage">Beverage</option>
+                  </select>
+                  <input
+                    type="number"
+                    placeholder={"Prep time (min)"}
+                    value={recipeTime ? recipeTime : ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setRecipeTime(
+                        e.target.value ? parseInt(e.target.value) : null
+                      )
+                    }
+                    onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      if (e.target.value.length > 3) {
+                        e.target.value = e.target.value.slice(0, 3);
+                      }
+                    }}
+                  />
+                </TypeTimeEditorContainer>
+              </HeaderEditorContainer>
+              <ButtonContainer>
                 <button onClick={handleSaveRecipeDetails}>Save</button>
                 <button onClick={() => setConfirmModalOpen(true)}>
                   Delete
                 </button>
-              </div>
+              </ButtonContainer>
             </RecipeHeader>
             <RecipeContents>
               <IngredientsContainer>
                 <h2>Ingredients</h2>
                 <IngredientsEditorContainer>
                   {ingredients.map((ingredient: Ingredient, index: number) => (
-                    <div key={index}>
-                      <input
+                    <IngredientEditorContainer key={index}>
+                      <StyledIngredientInput
                         value={ingredient.name}
-                        placeholder={"Ingredient name (50 characters max)"}
+                        placeholder={"Ingredient name"}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           const newIngredients = [...ingredients];
                           newIngredients[index].name = e.target.value;
@@ -304,9 +468,9 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
                         }}
                         maxLength={50}
                       />
-                      <input
+                      <StyledIngredientInput
                         value={ingredient.quantity}
-                        placeholder={"Quantity (50 characters max)"}
+                        placeholder={"Quantity"}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           const newIngredients = [...ingredients];
                           newIngredients[index].quantity = e.target.value;
@@ -314,25 +478,16 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
                         }}
                         maxLength={50}
                       />
-                      <input
-                        type="checkbox"
-                        checked={ingredient.required}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const newIngredients = [...ingredients];
-                          newIngredients[index].required = e.target.checked;
-                          setIngredients(newIngredients);
-                        }}
-                      />
-                      <button
+                      <DeleteIngredientButton
+                        src={process.env.PUBLIC_URL + "/buttonDeleteMeal.svg"}
+                        alt="Delete ingredient"
                         onClick={() =>
                           setIngredients(
                             ingredients.filter((_, i) => i !== index)
                           )
                         }
-                      >
-                        Delete
-                      </button>
-                    </div>
+                      />
+                    </IngredientEditorContainer>
                   ))}
                   <button
                     onClick={() =>
@@ -342,7 +497,6 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
                           id: uuidv4(),
                           name: "",
                           quantity: "",
-                          required: true,
                         },
                       ])
                     }
@@ -367,32 +521,67 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
           <>
             <RecipeHeader>
               <button onClick={() => setIsOpen(false)}>{"<"}</button>
-              <RecipeName>{recipeName ? recipeName : "Untitled"}</RecipeName>
-              <div>
-                <button onClick={() => setEditMode(true)}>Edit</button>
+              <RecipeNameAndTags>
+                {loadingBasicInfo ? (
+                  <RecipeName>Loading...</RecipeName>
+                ) : (
+                  <>
+                    <RecipeName>
+                      {recipeName ? recipeName : "Untitled"}
+                    </RecipeName>
+                    <TagContainer>
+                      <RecipeTypeTag>
+                        {recipeType
+                          ? recipeType.charAt(0).toUpperCase() +
+                            recipeType.slice(1)
+                          : "No type"}
+                      </RecipeTypeTag>
+                      <RecipeTimeTag>
+                        {recipeTime ? recipeTime + " min" : "No prep time"}
+                      </RecipeTimeTag>
+                    </TagContainer>
+                  </>
+                )}
+              </RecipeNameAndTags>
+              <ButtonContainer>
+                <button
+                  disabled={loadingBasicInfo || loadingIngredients}
+                  onClick={() => setEditMode(true)}
+                >
+                  Edit
+                </button>
                 <button onClick={() => setConfirmModalOpen(true)}>
                   Delete
                 </button>
-              </div>
+              </ButtonContainer>
             </RecipeHeader>
             <RecipeContents>
               <IngredientsContainer>
                 <h2>Ingredients</h2>
-                <IngredientsList>
-                  {ingredients.map((ingredient: Ingredient, index: number) => (
-                    <li key={index}>
-                      {!ingredient.required && "(optional) "}
-                      {ingredient.name.length > 0
-                        ? ingredient.name
-                        : "New ingredient"}
-                      {ingredient.quantity && " - " + ingredient.quantity}
-                    </li>
-                  ))}
-                </IngredientsList>
+                {loadingIngredients ? (
+                  <p>Loading...</p>
+                ) : (
+                  <IngredientsList>
+                    {ingredients.map(
+                      (ingredient: Ingredient, index: number) => (
+                        <li key={index}>
+                          {ingredient.name.length > 0
+                            ? ingredient.name
+                            : "New ingredient"}
+                          {ingredient.quantity && " - " + ingredient.quantity}
+                        </li>
+                      )
+                    )}
+                  </IngredientsList>
+                )}
               </IngredientsContainer>
               <NotesContainer>
                 <h2>Notes</h2>
-                <NotesText>{notes}</NotesText>
+                {loadingBasicInfo ? (
+                  <p>Loading...</p>
+                ) : (
+                  <NotesText>{notes}</NotesText>
+                )}
               </NotesContainer>
             </RecipeContents>
           </>

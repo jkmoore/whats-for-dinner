@@ -16,6 +16,8 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import SearchModifiers from "./SearchModifiers";
+import { RecipeTime, RecipeType, SearchMode } from "./searchModifierTypes";
 import Recipe from "./recipe";
 
 const INGREDIENT_SEARCH_CHUNK_SIZE = 30;
@@ -35,7 +37,7 @@ const SearchBarContainer = styled.div`
 
 const SearchTermsContainer = styled.div`
   display: flex;
-  padding: 1rem;
+  margin-top: 1rem;
   gap: 1rem;
   flex-wrap: wrap;
 `;
@@ -56,7 +58,7 @@ const SearchBar = styled.input`
   box-sizing: border-box;
   padding: 0.625rem;
   border: 1px solid #ccc;
-  border-radius: 0.5rem 0 0 0.5rem;
+  border-radius: 0.5rem;
   outline: none;
   width: 100%;
   margin-left: 0.5rem;
@@ -65,11 +67,9 @@ const SearchBar = styled.input`
   ${({ theme }) => theme.breakpoints.down("sm")} {
     font-size: 0.9rem;
   }
-
   ::placeholder {
     color: #ccc;
   }
-
   &:focus {
     outline: 0.1rem solid #ccc;
   }
@@ -110,6 +110,9 @@ const RecipeContainer = styled.div`
   border: 1px solid #ccc;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
+  gap: 0.5rem;
+  height: 3rem;
+  box-sizing: border-box;
 `;
 
 const DeleteButton = styled.img`
@@ -131,20 +134,13 @@ const SearchTerm = styled.div`
   padding: 0.25rem;
 `;
 
-const RecipesSearchButton = styled.button<{ $selected: boolean }>`
-  background-color: ${(props) => (props.$selected ? "#ccc" : "initial")};
-  height: 100%;
+const RecipeTimeTag = styled.p`
   border: 1px solid #ccc;
+  border-radius: 1rem;
+  padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+  font-size: 0.9rem;
+  margin: 0rem;
 `;
-
-const IngredientsSearchButton = styled.button<{ $selected: boolean }>`
-  background-color: ${(props) => (props.$selected ? "#ccc" : "initial")};
-  height: 100%;
-  border-radius: 0 0.5rem 0.5rem 0;
-  border: 1px solid #ccc;
-`;
-
-type SearchMode = "recipes" | "ingredients";
 
 export default function Recipes() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -156,6 +152,8 @@ export default function Recipes() {
   const [idOfRecipeToOpen, setIdOfRecipeToOpen] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchedIngredients, setSearchedIngredients] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<RecipeType[]>([]);
+  const [selectedTime, setSelectedTime] = useState<RecipeTime | null>(null);
   const user: User | null = auth.currentUser;
 
   useEffect(() => {
@@ -174,6 +172,8 @@ export default function Recipes() {
           const recipe = {
             id: doc.id,
             name: data.name,
+            type: data.type,
+            time: data.time,
           };
           newRecipes.push(recipe);
         });
@@ -289,6 +289,8 @@ export default function Recipes() {
           const recipe = {
             id: doc.id,
             name: data.name,
+            type: data.type,
+            time: data.time,
           };
           results.push(recipe);
         });
@@ -353,6 +355,48 @@ export default function Recipes() {
     }
   };
 
+  const handleSelectTypeFilter = (type: RecipeType) => {
+    setSelectedTypes((prevSelectedTypes) => {
+      if (prevSelectedTypes.includes(type)) {
+        return prevSelectedTypes.filter((t) => t !== type);
+      } else {
+        return [...prevSelectedTypes, type];
+      }
+    });
+  };
+
+  const handleSelectTimeFilter = (time: RecipeTime) => {
+    if (selectedTime === time) {
+      setSelectedTime(null);
+    } else {
+      setSelectedTime(time);
+    }
+  };
+
+  const filteredRecipes = recipes
+    .filter(
+      (recipe) =>
+        !selectedTypes.length ||
+        !recipe.type ||
+        selectedTypes.includes(recipe.type)
+    )
+    .filter(
+      (recipe) =>
+        !selectedTime || !recipe.time || recipe.time <= parseInt(selectedTime)
+    );
+
+  const filteredSearchResults = searchResults
+    .filter(
+      (recipe) =>
+        !selectedTypes.length ||
+        !recipe.type ||
+        selectedTypes.includes(recipe.type)
+    )
+    .filter(
+      (recipe) =>
+        !selectedTime || !recipe.time || recipe.time <= parseInt(selectedTime)
+    );
+
   return (
     <>
       {showRecipe ? (
@@ -367,7 +411,11 @@ export default function Recipes() {
               />
               <SearchBar
                 id="search"
-                placeholder="Search for a recipe"
+                placeholder={
+                  searchMode === "recipes"
+                    ? "Search for a recipe"
+                    : "Search by ingredient name"
+                }
                 value={searchTerm}
                 onChange={handleSearchChange}
                 onKeyDown={(e) => {
@@ -376,19 +424,15 @@ export default function Recipes() {
                   }
                 }}
               />
-              <RecipesSearchButton
-                onClick={() => handleSetSearchMode("recipes")}
-                $selected={searchMode === "recipes"}
-              >
-                Search by recipe name
-              </RecipesSearchButton>
-              <IngredientsSearchButton
-                onClick={() => handleSetSearchMode("ingredients")}
-                $selected={searchMode === "ingredients"}
-              >
-                Search by ingredient
-              </IngredientsSearchButton>
             </SearchBarContainer>
+            <SearchModifiers
+              searchMode={searchMode}
+              onSetSearchMode={handleSetSearchMode}
+              selectedTypes={selectedTypes}
+              onSelectTypeFilter={handleSelectTypeFilter}
+              selectedTime={selectedTime}
+              onSelectTimeFilter={handleSelectTimeFilter}
+            />
             {searchMode === "ingredients" && searchedIngredients.length > 0 && (
               <SearchTermsContainer>
                 {searchedIngredients &&
@@ -408,12 +452,12 @@ export default function Recipes() {
           <RecipesListContainer>
             {loading ? (
               <p>Loading...</p>
-            ) : isSearching && searchResults.length === 0 ? (
-              <p>No matching recipes found.</p>
-            ) : recipes.length === 0 ? (
-              <p>No recipes in your inventory.</p>
+            ) : isSearching && filteredSearchResults.length === 0 ? (
+              <p>No recipes found.</p>
+            ) : filteredRecipes.length === 0 ? (
+              <p>No recipes found.</p>
             ) : isSearching && searchResults.length > 0 ? (
-              searchResults.map((recipe, index) => (
+              filteredSearchResults.map((recipe, index) => (
                 <RecipeContainer
                   key={index}
                   onClick={() => {
@@ -422,10 +466,14 @@ export default function Recipes() {
                   }}
                 >
                   {recipe.name}
+                  {recipe.type && <RecipeTimeTag>{recipe.type}</RecipeTimeTag>}
+                  {recipe.time && (
+                    <RecipeTimeTag>{recipe.time + " min"}</RecipeTimeTag>
+                  )}
                 </RecipeContainer>
               ))
             ) : (
-              recipes.map((recipe, index) => (
+              filteredRecipes.map((recipe, index) => (
                 <RecipeContainer
                   key={index}
                   onClick={() => {
@@ -434,6 +482,10 @@ export default function Recipes() {
                   }}
                 >
                   {recipe.name}
+                  {recipe.type && <RecipeTimeTag>{recipe.type}</RecipeTimeTag>}
+                  {recipe.time && (
+                    <RecipeTimeTag>{recipe.time + " min"}</RecipeTimeTag>
+                  )}
                 </RecipeContainer>
               ))
             )}
