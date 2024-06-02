@@ -26,6 +26,8 @@ const StyledListItem = styled.li`
   list-style-type: none;
   cursor: pointer;
   margin-top: 0rem;
+  height: 3rem;
+  box-sizing: border-box;
 `;
 
 const DeleteItemButton = styled.img`

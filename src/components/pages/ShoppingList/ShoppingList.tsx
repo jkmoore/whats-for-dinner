@@ -25,6 +25,7 @@ const StyledHeader = styled.div`
   align-items: center;
   padding: 0rem;
   margin: 0.5rem 0;
+  height: 2.5rem;
 `;
 
 const SearchBar = styled.input`
