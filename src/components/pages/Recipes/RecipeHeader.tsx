@@ -1,0 +1,196 @@
+import React from "react";
+import styled from "styled-components";
+import { RecipeType } from "./searchModifierTypes";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 7rem;
+  width: 100%;
+  border-bottom: 1px solid #d9d9d9;
+  background-color: white;
+  box-sizing: border-box;
+  padding: 1rem;
+`;
+
+const RecipeTypeTag = styled.p`
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+  font-size: 0.9rem;
+  margin: 0rem;
+`;
+
+const RecipeTimeTag = styled.p`
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+  font-size: 0.9rem;
+  margin: 0rem;
+`;
+
+const HeaderEditorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
+const TypeTimeEditorContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    flex-direction: column;
+  }
+  gap: 0.5rem;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    flex-direction: column;
+  }
+  gap: 0.25rem;
+`;
+
+const RecipeNameAndTags = styled.div`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0rem;
+  display: flex;
+  flex-direction: column;
+`;
+
+const RecipeName = styled.h1`
+  margin: 0.5rem;
+  align-self: center;
+`;
+
+const TagContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+`;
+
+interface RecipeHeaderProps {
+  editMode: boolean;
+  onClickEdit: () => void;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  recipeName: string;
+  setRecipeName: React.Dispatch<React.SetStateAction<string>>;
+  recipeType: RecipeType | null;
+  recipeTime: number | null;
+  setRecipeTime: React.Dispatch<React.SetStateAction<number | null>>;
+  onRecipeTypeChange: (newType: string) => void;
+  setConfirmModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onSaveRecipeDetails: () => void;
+  loadingBasicInfo: boolean;
+  loadingIngredients: boolean;
+}
+
+export default function RecipeHeader({
+  editMode,
+  onClickEdit,
+  setIsOpen,
+  recipeName,
+  setRecipeName,
+  recipeType,
+  recipeTime,
+  setRecipeTime,
+  onRecipeTypeChange,
+  setConfirmModalOpen,
+  onSaveRecipeDetails,
+  loadingBasicInfo,
+  loadingIngredients,
+}: RecipeHeaderProps) {
+  return (
+    <>
+      {editMode ? (
+        <Container>
+          <button onClick={() => setIsOpen(false)}>{"<"}</button>
+          <HeaderEditorContainer>
+            <input
+              placeholder={"Recipe name (100 characters max)"}
+              value={recipeName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setRecipeName(e.target.value)
+              }
+              maxLength={100}
+            />
+            <TypeTimeEditorContainer>
+              <select
+                value={recipeType ? recipeType : ""}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  onRecipeTypeChange(e.target.value)
+                }
+              >
+                <option value="">Select a recipe type</option>
+                <option value="main">Main</option>
+                <option value="side">Side</option>
+                <option value="dessert">Dessert</option>
+                <option value="beverage">Beverage</option>
+              </select>
+              <input
+                type="number"
+                placeholder={"Prep time (min)"}
+                value={recipeTime ? recipeTime : ""}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setRecipeTime(
+                    e.target.value ? parseInt(e.target.value) : null
+                  )
+                }
+                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  if (e.target.value.length > 3) {
+                    e.target.value = e.target.value.slice(0, 3);
+                  }
+                }}
+              />
+            </TypeTimeEditorContainer>
+          </HeaderEditorContainer>
+          <ButtonContainer>
+            <button onClick={onSaveRecipeDetails}>Save</button>
+            <button onClick={() => setConfirmModalOpen(true)}>Delete</button>
+          </ButtonContainer>
+        </Container>
+      ) : (
+        <Container>
+          <button onClick={() => setIsOpen(false)}>{"<"}</button>
+          <RecipeNameAndTags>
+            {loadingBasicInfo ? (
+              <RecipeName>Loading...</RecipeName>
+            ) : (
+              <>
+                <RecipeName>{recipeName ? recipeName : "Untitled"}</RecipeName>
+                <TagContainer>
+                  <RecipeTypeTag>
+                    {recipeType
+                      ? recipeType.charAt(0).toUpperCase() + recipeType.slice(1)
+                      : "No type"}
+                  </RecipeTypeTag>
+                  <RecipeTimeTag>
+                    {recipeTime ? recipeTime + " min" : "No prep time"}
+                  </RecipeTimeTag>
+                </TagContainer>
+              </>
+            )}
+          </RecipeNameAndTags>
+          <ButtonContainer>
+            <button
+              disabled={loadingBasicInfo || loadingIngredients}
+              onClick={onClickEdit}
+            >
+              Edit
+            </button>
+            <button onClick={() => setConfirmModalOpen(true)}>Delete</button>
+          </ButtonContainer>
+        </Container>
+      )}
+    </>
+  );
+}
