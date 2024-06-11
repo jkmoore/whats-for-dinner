@@ -225,7 +225,7 @@ export default function Recipes() {
             if (!recipeMatchPercentages[recipeId]) {
               recipeMatchPercentages[recipeId] = 0;
             }
-            recipeMatchPercentages[recipeId] += (1 / numIngredients) * 100;
+            recipeMatchPercentages[recipeId] += (1 / numIngredients);
           });
         });
         const sortedResults = Object.keys(recipeMatchPercentages).sort(
