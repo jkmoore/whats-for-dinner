@@ -149,6 +149,14 @@ const RecipeName = styled.span`
   text-overflow: ellipsis;
 `;
 
+const RecipeSubtext = styled.span`
+  font-size: 0.9rem;
+  color: #6a6a6a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 export default function Recipes() {
   const [loading, setLoading] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -223,21 +231,25 @@ export default function Recipes() {
             return await getDocs(searchRef);
           })
         );
-        const recipeMatchPercentages: { [key: string]: number } = {};
+        const recipeMatches: { [recipeId: string]: { percentage: number, subtext: string } } = {};
         const numIngredients = ingredients.length;
 
         snapshots.forEach((querySnapshot) => {
           querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
             const recipeId = doc.data().recipeId;
-            if (!recipeMatchPercentages[recipeId]) {
-              recipeMatchPercentages[recipeId] = 0;
+            const matchPercentage = 1 / numIngredients;
+            const subtext = doc.data().name;
+            if (!recipeMatches[recipeId]) {
+              recipeMatches[recipeId] = { percentage: matchPercentage, subtext };
+            } else {
+              recipeMatches[recipeId].percentage += matchPercentage;
+              recipeMatches[recipeId].subtext += `, ${subtext}`;
             }
-            recipeMatchPercentages[recipeId] += 1 / numIngredients;
           });
         });
-        const sortedResults = Object.keys(recipeMatchPercentages).sort(
+        const sortedResults = Object.keys(recipeMatches).sort(
           (a, b) => {
-            return recipeMatchPercentages[b] - recipeMatchPercentages[a];
+            return recipeMatches[b].percentage - recipeMatches[a].percentage;
           }
         );
         const recipes = await Promise.all(
@@ -248,6 +260,7 @@ export default function Recipes() {
               return {
                 id: recipeId,
                 ...data,
+                subtext: recipeMatches[recipeId].subtext,
               } as Recipe;
             } else {
               return null;
@@ -474,8 +487,9 @@ export default function Recipes() {
                 >
                   <RecipeName>{recipe.name}</RecipeName>
                   {recipe.type && <RecipeTag>{recipe.type}</RecipeTag>}
-                  {recipe.time && (
-                    <RecipeTag>{recipe.time + " min"}</RecipeTag>
+                  {recipe.time && <RecipeTag>{recipe.time + " min"}</RecipeTag>}
+                  {recipe.subtext && searchMode === "ingredients" && (
+                    <RecipeSubtext>{recipe.subtext}</RecipeSubtext>
                   )}
                 </RecipeContainer>
               ))
@@ -490,9 +504,7 @@ export default function Recipes() {
                 >
                   <RecipeName>{recipe.name}</RecipeName>
                   {recipe.type && <RecipeTag>{recipe.type}</RecipeTag>}
-                  {recipe.time && (
-                    <RecipeTag>{recipe.time + " min"}</RecipeTag>
-                  )}
+                  {recipe.time && <RecipeTag>{recipe.time + " min"}</RecipeTag>}
                 </RecipeContainer>
               ))
             )}

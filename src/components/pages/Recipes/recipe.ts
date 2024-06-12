@@ -5,4 +5,5 @@ export default interface Recipe {
   name: string;
   type: RecipeType | null;
   time: number;
+  subtext?: string;
 }
