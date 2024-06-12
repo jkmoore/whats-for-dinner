@@ -134,12 +134,19 @@ const SearchTerm = styled.div`
   padding: 0.25rem;
 `;
 
-const RecipeTimeTag = styled.p`
+const RecipeTag = styled.p`
   border: 1px solid #ccc;
   border-radius: 1rem;
   padding: 0.1rem 0.3rem 0.1rem 0.3rem;
   font-size: 0.9rem;
   margin: 0rem;
+  flex-shrink: 0;
+`;
+
+const RecipeName = styled.span`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export default function Recipes() {
@@ -225,7 +232,7 @@ export default function Recipes() {
             if (!recipeMatchPercentages[recipeId]) {
               recipeMatchPercentages[recipeId] = 0;
             }
-            recipeMatchPercentages[recipeId] += (1 / numIngredients);
+            recipeMatchPercentages[recipeId] += 1 / numIngredients;
           });
         });
         const sortedResults = Object.keys(recipeMatchPercentages).sort(
@@ -465,10 +472,10 @@ export default function Recipes() {
                     setShowRecipe(true);
                   }}
                 >
-                  {recipe.name}
-                  {recipe.type && <RecipeTimeTag>{recipe.type}</RecipeTimeTag>}
+                  <RecipeName>{recipe.name}</RecipeName>
+                  {recipe.type && <RecipeTag>{recipe.type}</RecipeTag>}
                   {recipe.time && (
-                    <RecipeTimeTag>{recipe.time + " min"}</RecipeTimeTag>
+                    <RecipeTag>{recipe.time + " min"}</RecipeTag>
                   )}
                 </RecipeContainer>
               ))
@@ -481,10 +488,10 @@ export default function Recipes() {
                     setShowRecipe(true);
                   }}
                 >
-                  {recipe.name}
-                  {recipe.type && <RecipeTimeTag>{recipe.type}</RecipeTimeTag>}
+                  <RecipeName>{recipe.name}</RecipeName>
+                  {recipe.type && <RecipeTag>{recipe.type}</RecipeTag>}
                   {recipe.time && (
-                    <RecipeTimeTag>{recipe.time + " min"}</RecipeTimeTag>
+                    <RecipeTag>{recipe.time + " min"}</RecipeTag>
                   )}
                 </RecipeContainer>
               ))
