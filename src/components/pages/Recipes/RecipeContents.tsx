@@ -96,6 +96,12 @@ const NotesTextArea = styled(TextareaAutosize)`
   font-family: inherit;
 `;
 
+const ContentsHeader = styled.h2`
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    font-size: 1rem;
+  }
+`;
+
 interface RecipeContentsProps {
   editMode: boolean;
   loadingBasicInfo: boolean;
@@ -120,7 +126,7 @@ export default function RecipeContents({
       {editMode ? (
         <Container>
           <IngredientsContainer>
-            <h2>Ingredients</h2>
+            <ContentsHeader>Ingredients</ContentsHeader>
             <IngredientsEditorContainer>
               {ingredients.map((ingredient: Ingredient, index: number) => (
                 <IngredientEditorContainer key={index}>
@@ -170,7 +176,7 @@ export default function RecipeContents({
             </IngredientsEditorContainer>
           </IngredientsContainer>
           <NotesContainer>
-            <h2>Notes</h2>
+            <ContentsHeader>Notes</ContentsHeader>
             <NotesTextArea
               placeholder={"Add your notes (steps, tips, etc.)"}
               value={notes}
@@ -183,7 +189,7 @@ export default function RecipeContents({
       ) : (
         <Container>
           <IngredientsContainer>
-            <h2>Ingredients</h2>
+            <ContentsHeader>Ingredients</ContentsHeader>
             {loadingIngredients ? (
               <p>Loading...</p>
             ) : (
@@ -200,7 +206,7 @@ export default function RecipeContents({
             )}
           </IngredientsContainer>
           <NotesContainer>
-            <h2>Notes</h2>
+            <ContentsHeader>Notes</ContentsHeader>
             {loadingBasicInfo ? (
               <p>Loading...</p>
             ) : (

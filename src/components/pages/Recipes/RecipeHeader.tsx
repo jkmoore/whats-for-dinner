@@ -5,6 +5,7 @@ import { RecipeType } from "./searchModifierTypes";
 const Container = styled.div`
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
   height: 7rem;
@@ -18,17 +19,17 @@ const Container = styled.div`
 const RecipeTypeTag = styled.p`
   border: 1px solid #ccc;
   border-radius: 1rem;
-  padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+  padding: 0.1rem 0.3rem;
   font-size: 0.9rem;
-  margin: 0rem;
+  margin: 0;
 `;
 
 const RecipeTimeTag = styled.p`
   border: 1px solid #ccc;
   border-radius: 1rem;
-  padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+  padding: 0.1rem 0.3rem;
   font-size: 0.9rem;
-  margin: 0rem;
+  margin: 0;
 `;
 
 const HeaderEditorContainer = styled.div`
@@ -56,26 +57,41 @@ const ButtonContainer = styled.div`
     flex-direction: column;
   }
   gap: 0.25rem;
+  flex: 0 0 auto;
 `;
 
 const RecipeNameAndTags = styled.div`
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0rem;
+  flex: 1;
   display: flex;
+  align-items: center;
   flex-direction: column;
+  text-align: center;
 `;
 
 const RecipeName = styled.h1`
-  margin: 0.5rem;
-  align-self: center;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  white-space: normal;
+  margin: 0.5rem 2rem;
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    font-size: 1rem;
+    -webkit-line-clamp: 3;
+  }
 `;
 
 const TagContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
+  justify-content: center;
+`;
+
+const CloseButton = styled.button`
+  flex: 0 0 auto;
 `;
 
 interface RecipeHeaderProps {
@@ -113,15 +129,15 @@ export default function RecipeHeader({
     <>
       {editMode ? (
         <Container>
-          <button onClick={() => setIsOpen(false)}>{"<"}</button>
+          <CloseButton onClick={() => setIsOpen(false)}>{"<"}</CloseButton>
           <HeaderEditorContainer>
             <input
-              placeholder={"Recipe name (100 characters max)"}
+              placeholder={"Recipe name (50 characters max)"}
               value={recipeName}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setRecipeName(e.target.value)
               }
-              maxLength={100}
+              maxLength={50}
             />
             <TypeTimeEditorContainer>
               <select
@@ -160,7 +176,7 @@ export default function RecipeHeader({
         </Container>
       ) : (
         <Container>
-          <button onClick={() => setIsOpen(false)}>{"<"}</button>
+          <CloseButton onClick={() => setIsOpen(false)}>{"<"}</CloseButton>
           <RecipeNameAndTags>
             {loadingBasicInfo ? (
               <RecipeName>Loading...</RecipeName>
