@@ -234,9 +234,27 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
       try {
         const recipeRef = doc(collection(firestore, "recipes"), recipeId);
         await deleteDoc(recipeRef);
+        await deleteIngredientsByRecipe(recipeId);
         setIsOpen(false);
       } catch (error) {
         console.error("Error deleting recipe:", error);
+      }
+    }
+  };
+
+  const deleteIngredientsByRecipe = async (recipeId: string) => {
+    if (!recipeId) {
+      return;
+    } else {
+      try {
+        const ingredientsRef = collection(firestore, "ingredients");
+        const q = query(ingredientsRef, where("recipeId", "==", recipeId));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (doc) => {
+          await deleteDoc(doc.ref);
+        });
+      } catch (error) {
+        console.error("Error deleting ingredients:", error);
       }
     }
   };
