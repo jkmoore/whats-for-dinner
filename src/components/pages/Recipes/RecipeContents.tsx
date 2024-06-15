@@ -25,6 +25,7 @@ const IngredientsContainer = styled.div`
   }
   ${({ theme }) => theme.breakpoints.down("sm")} {
     width: 100%;
+    height: 50%;
   }
   height: 100%;
   overflow-wrap: break-word;
@@ -79,6 +80,7 @@ const NotesContainer = styled.div`
   }
   ${({ theme }) => theme.breakpoints.down("sm")} {
     width: 100%;
+    height: 50%;
   }
   height: 100%;
   overflow-wrap: break-word;
