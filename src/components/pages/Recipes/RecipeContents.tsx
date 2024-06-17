@@ -68,8 +68,8 @@ const DeleteIngredientButton = styled.img`
 `;
 
 const StyledIngredientInput = styled.input`
-  flex: 1 1 auto; /* Allows the input to grow and shrink */
-  min-width: 5rem; /* Set a reasonable minimum width for the input */
+  flex: 1 1 auto;
+  min-width: 5rem;
 `;
 
 const NotesContainer = styled.div`

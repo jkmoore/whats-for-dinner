@@ -51,6 +51,7 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
   const [loadingBasicInfo, setLoadingBasicInfo] = useState<boolean>(false);
   const [loadingIngredients, setLoadingIngredients] = useState<boolean>(false);
+  const [saving, setSaving] = useState<boolean>(false);
   const user: User | null = auth.currentUser;
 
   useEffect(() => {
@@ -120,6 +121,8 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
   );
 
   const handleSaveRecipeDetails = useCallback(async () => {
+    setEditMode(false);
+    setSaving(true);
     let currentRecipeId = recipeId;
     try {
       if (!recipeId) {
@@ -211,7 +214,7 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
         await batch.commit();
       }
 
-      setEditMode(false);
+      setSaving(false);
     } catch (error) {
       console.error("Error saving changes:", error);
     }
@@ -303,6 +306,7 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
           onSaveRecipeDetails={handleSaveRecipeDetails}
           loadingBasicInfo={loadingBasicInfo}
           loadingIngredients={loadingIngredients}
+          saving={saving}
         />
         <RecipeContents
           editMode={editMode}

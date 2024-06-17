@@ -108,6 +108,7 @@ interface RecipeHeaderProps {
   onSaveRecipeDetails: () => void;
   loadingBasicInfo: boolean;
   loadingIngredients: boolean;
+  saving: boolean;
 }
 
 export default function RecipeHeader({
@@ -124,6 +125,7 @@ export default function RecipeHeader({
   onSaveRecipeDetails,
   loadingBasicInfo,
   loadingIngredients,
+  saving,
 }: RecipeHeaderProps) {
   return (
     <>
@@ -169,10 +171,14 @@ export default function RecipeHeader({
               />
             </TypeTimeEditorContainer>
           </HeaderEditorContainer>
-          <ButtonContainer>
-            <button onClick={onSaveRecipeDetails}>Save</button>
-            <button onClick={() => setConfirmModalOpen(true)}>Delete</button>
-          </ButtonContainer>
+          {saving ? (
+            "Saving..."
+          ) : (
+            <ButtonContainer>
+              <button onClick={onSaveRecipeDetails}>Save</button>
+              <button onClick={() => setConfirmModalOpen(true)}>Delete</button>
+            </ButtonContainer>
+          )}
         </Container>
       ) : (
         <Container>
@@ -196,15 +202,19 @@ export default function RecipeHeader({
               </>
             )}
           </RecipeNameAndTags>
-          <ButtonContainer>
-            <button
-              disabled={loadingBasicInfo || loadingIngredients}
-              onClick={onClickEdit}
-            >
-              Edit
-            </button>
-            <button onClick={() => setConfirmModalOpen(true)}>Delete</button>
-          </ButtonContainer>
+          {saving ? (
+            "Saving..."
+          ) : (
+            <ButtonContainer>
+              <button
+                disabled={loadingBasicInfo || loadingIngredients}
+                onClick={onClickEdit}
+              >
+                Edit
+              </button>
+              <button onClick={() => setConfirmModalOpen(true)}>Delete</button>
+            </ButtonContainer>
+          )}
         </Container>
       )}
     </>
