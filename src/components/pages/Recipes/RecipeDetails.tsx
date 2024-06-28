@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import Ingredient from "./ingredient";
 import {
-  DocumentData,
-  QueryDocumentSnapshot,
   addDoc,
   collection,
   deleteDoc,
@@ -45,9 +43,9 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
   const [recipeTime, setRecipeTime] = useState<number | null>(null);
   const [notes, setNotes] = useState<string>("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-  const [preEditIngredients, setPreEditIngredients] = useState<Ingredient[]>(
-    []
-  );
+  const [preEditIngredients, setPreEditIngredients] = useState<{
+    [id: string]: Ingredient;
+  }>({});
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
   const [loadingBasicInfo, setLoadingBasicInfo] = useState<boolean>(false);
   const [loadingIngredients, setLoadingIngredients] = useState<boolean>(false);
@@ -83,7 +81,7 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
           ingredientsQuerySnapshot.forEach((doc) => {
             const data = doc.data();
             const ingredient: Ingredient = {
-              id: doc.id,
+              id: data.id,
               name: data.name,
               quantity: data.quantity,
             };
@@ -106,19 +104,35 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
   }, [id]);
 
   const ingredientsUnchanged = useCallback(
-    (preEdit: Ingredient[], postEdit: Ingredient[]): boolean => {
-      return (
-        preEdit.length === postEdit.length &&
-        preEdit.every(
-          (ingredient, index) =>
-            ingredient.id === postEdit[index].id &&
-            ingredient.name === postEdit[index].name &&
-            ingredient.quantity === postEdit[index].quantity
-        )
-      );
+    (
+      preEdit: { [id: string]: Ingredient },
+      postEdit: Ingredient[]
+    ): boolean => {
+      const preEditKeys = Object.keys(preEdit);
+
+      if (preEditKeys.length !== postEdit.length) {
+        return false;
+      }
+
+      return postEdit.every((ingredient) => {
+        const preEditIngredient = preEdit[ingredient.id];
+        return ingredientUnchanged(preEditIngredient, ingredient);
+      });
     },
     []
   );
+
+  const ingredientUnchanged = (
+    preEdit: Ingredient,
+    postEdit: Ingredient
+  ): boolean => {
+    return (
+      preEdit &&
+      preEdit.id === postEdit.id &&
+      preEdit.name === postEdit.name &&
+      preEdit.quantity === postEdit.quantity
+    );
+  };
 
   const handleSaveRecipeDetails = useCallback(async () => {
     setEditMode(false);
@@ -147,36 +161,31 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
       }
 
       if (!ingredientsUnchanged(preEditIngredients, ingredients)) {
-        const ingredientsRef = collection(firestore, "ingredients");
-        const q = query(
-          ingredientsRef,
-          where("recipeId", "==", currentRecipeId)
-        );
-        const existingIngredientsSnapshot = await getDocs(q);
-        const existingIngredientIds: Set<string> = new Set<string>();
-        existingIngredientsSnapshot.forEach(
-          (doc: QueryDocumentSnapshot<DocumentData>) => {
-            existingIngredientIds.add(doc.data().id);
-          }
-        );
-
         const ingredientsToAdd: Ingredient[] = [];
         const ingredientsToUpdate: Ingredient[] = [];
         const ingredientsToDelete: string[] = [];
 
         ingredients.forEach((ingredient) => {
-          if (existingIngredientIds.has(ingredient.id)) {
-            ingredientsToUpdate.push(ingredient);
+          if (preEditIngredients.hasOwnProperty(ingredient.id)) {
+            if (
+              !ingredientUnchanged(
+                preEditIngredients[ingredient.id],
+                ingredient
+              )
+            ) {
+              ingredientsToUpdate.push(ingredient);
+            }
           } else {
             ingredientsToAdd.push(ingredient);
           }
-          existingIngredientIds.delete(ingredient.id);
+        });
+        Object.keys(preEditIngredients).forEach((id) => {
+          if (!ingredients.find((ingredient) => ingredient.id === id)) {
+            ingredientsToDelete.push(id);
+          }
         });
 
-        existingIngredientIds.forEach((id: string) => {
-          ingredientsToDelete.push(id);
-        });
-
+        const ingredientsRef = collection(firestore, "ingredients");
         const batch = writeBatch(firestore);
 
         ingredientsToAdd.forEach((ingredient) => {
@@ -278,7 +287,12 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
 
   const handleClickEdit = useCallback(() => {
     setEditMode(true);
-    setPreEditIngredients(ingredients.map((ingredient) => ({ ...ingredient })));
+    setPreEditIngredients(
+      ingredients.reduce((acc, ingredient) => {
+        acc[ingredient.id] = { ...ingredient };
+        return acc;
+      }, {} as { [id: string]: Ingredient })
+    );
   }, [ingredients]);
 
   return (
