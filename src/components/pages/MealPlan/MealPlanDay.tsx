@@ -87,6 +87,8 @@ const StyledTextArea = styled(TextareaAutosize)`
   }
   border-top-right-radius: 0.2rem;
   border-bottom-right-radius: 0.2rem;
+  border-top-left-radius: 0rem;
+  border-bottom-left-radius: 0rem;
 `;
 
 const TextContainer = styled.div`
