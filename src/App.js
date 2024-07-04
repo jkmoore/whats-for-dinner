@@ -14,11 +14,11 @@ import NotFound from "./components/pages/NotFound/NotFound.tsx";
 import PrivateRoute from "./PrivateRoute";
 import LoggedOutRoute from "./LoggedOutRoute";
 import { BrowserRouter } from "react-router-dom";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.tsx";
-import MobileHeader from "./components/MobileHeader.tsx"
+import MobileHeader from "./components/MobileHeader.tsx";
 import styled, { useTheme } from "styled-components";
-import { useMediaQuery } from 'styled-breakpoints/use-media-query';
+import { useMediaQuery } from "styled-breakpoints/use-media-query";
 
 const Container = styled.div`
   height: 100vh;
@@ -29,7 +29,9 @@ const Container = styled.div`
 const StyledSection = styled.section`
   background-color: #f2f2f2;
   background-image: linear-gradient(#f2f2f2, white);
-  h1, h2, p {
+  h1,
+  h2,
+  p {
     margin-top: 0rem;
   }
   flex: 1;
@@ -38,7 +40,7 @@ const StyledSection = styled.section`
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const isLarge = useMediaQuery(useTheme()?.breakpoints.up('md'));
+  const isLarge = useMediaQuery(useTheme()?.breakpoints.up("md"));
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -56,9 +58,21 @@ function App() {
     <BrowserRouter>
       <AuthProvider value={{ currentUser }}>
         <Container>
-          {currentUser && currentUser.emailVerified && (isLarge ? <Navbar /> : <MobileHeader />)}
+          {currentUser &&
+            currentUser.emailVerified &&
+            (isLarge ? <Navbar /> : <MobileHeader />)}
           <StyledSection>
             <Routes>
+              <Route
+                path="/"
+                element={
+                  currentUser ? (
+                    <Navigate to="/inventory" />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
               <Route
                 path="/inventory"
                 element={
