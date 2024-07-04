@@ -67,6 +67,7 @@ const ConfirmButton = styled.button`
   background-color: #4285f4;
   color: white;
   border: none;
+  font-size: 1rem;
 `;
 
 const InTextButton = styled.button`

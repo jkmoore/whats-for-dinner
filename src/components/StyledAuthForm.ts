@@ -48,6 +48,7 @@ export const SubmitButton = styled.button`
   color: white;
   border: none;
   margin-bottom: 1rem;
+  font-size: 1rem;
 `;
 
 export const StyledImg = styled.img`
