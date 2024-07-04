@@ -51,7 +51,7 @@ export default function MobileHeader() {
   return (
     <StyledContainer id="container">
       <StyledImg
-        src={process.env.PUBLIC_URL + "/logoNavbar.svg"}
+        src={process.env.PUBLIC_URL + "/logoNavbar.png"}
         alt="What's for Dinner?"
       />
       <div id="page-wrap" />
