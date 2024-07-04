@@ -37,9 +37,6 @@ const SearchBar = styled.input`
   margin-left: 0.5rem;
   box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
   font-size: 1rem;
-  ${({ theme }) => theme.breakpoints.down("sm")} {
-    font-size: 0.9rem;
-  }
 
   ::placeholder {
     color: #ccc;

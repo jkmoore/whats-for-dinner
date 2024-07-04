@@ -36,6 +36,7 @@ export const StyledInput = styled.input`
   height: 2rem;
   padding-left: 0.5rem;
   box-sizing: border-box;
+  font-size: 1rem;
 `;
 
 export const SubmitButton = styled.button`
