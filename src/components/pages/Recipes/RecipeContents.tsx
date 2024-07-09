@@ -14,7 +14,8 @@ const Container = styled.div`
   top: 7rem;
   left: 0;
   right: 0;
-  bottom: 0rem;
+  bottom: -7rem;
+  padding-bottom: 5rem;
 `;
 
 const IngredientsContainer = styled.div`

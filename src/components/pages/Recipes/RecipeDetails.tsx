@@ -29,6 +29,7 @@ const RecipeDetailsContainer = styled.div`
   background-color: #f2f2f2;
   background-image: linear-gradient(#f2f2f2, white);
   height: 100vh;
+  overflow-y: auto;
 `;
 interface RecipeDetailsProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -51,6 +52,13 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
   const [loadingIngredients, setLoadingIngredients] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
   const user: User | null = auth.currentUser;
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
 
   useEffect(() => {
     if (!id) {
