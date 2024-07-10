@@ -1,70 +1,61 @@
-# Getting Started with Create React App
+# What's for Dinner?
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A comprehensive web application designed to eliminate the daily dilemma of deciding what to cook. Perfect for the busy home chef, this app provides an integrated solution for managing your kitchen and meal planning needs.
 
-## Available Scripts
+# Features
 
-In the project directory, you can run:
+## Inventory Management
 
-### `npm start`
+Keep track of the food items you have at home. Easily update your inventory to know exactly what ingredients are available.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Shopping List
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Create and manage your shopping list to ensure you never forget an item.
 
-### `npm test`
+## Recipe Repository
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Store all your favorite recipes in one place. The advanced search tool allows you to find recipes based on any ingredients you want to use, cooking time, and more. Recipes are ranked by how well they match your search criteria, making it easy to choose the best option.
 
-### `npm run build`
+## Meal Planning
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Plan your meals with an intuitive drag-and-drop meal planner. Organize your weekly meal schedule effortlessly, ensuring a balanced diet and reducing food waste.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## User Accounts
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Securely store your data in your own personal user account. Access your inventory, shopping list, recipes, and meal plan from any device, knowing your information is safely stored in the app's database.
 
-### `npm run eject`
+# Getting Started (for Developers)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Clone the repository:\
+`git clone https://github.com/jkmoore/whats-for-dinner.git`
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Install:\
+`npm install`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Run locally:\
+`npm start`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Build and deploy to Firebase Hosting:\
+`npm run build && firebase deploy`
 
-## Learn More
+# Technical Details
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Frontend
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+* Framework: React (bootstrapped with Create React App)
+* State Management: useState hook
+* Routing: React Router DOM
+* Styling: styled-components
 
-### Code Splitting
+## Backend
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+* Database: Firestore
+* Authentication: Firebase Authentication
 
-### Analyzing the Bundle Size
+## Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+* Hosting: Firebase
 
-### Making a Progressive Web App
+## Design
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+* UI Design: Figma
