@@ -28,6 +28,10 @@ const StyledList = styled.ul`
   padding: 0rem;
 `;
 
+const StyledImage = styled.img`
+  margin-bottom: -2px;
+`;
+
 const StyledLink = styled(Link)<{ $isActive: boolean }>`
   text-decoration: none;
   font-size: 1rem;
@@ -56,7 +60,7 @@ export default function Navbar() {
   return (
     <StyledDiv>
       <StyledList>
-        <img
+        <StyledImage
           src={process.env.PUBLIC_URL + "/logoNavbar.svg"}
           alt="What's for Dinner?"
         />
