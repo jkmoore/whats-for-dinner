@@ -26,19 +26,19 @@ const StyledContainer = styled.div`
   padding-bottom: 2rem;
   padding-left: 3rem;
   padding-right: 3rem;
-  ${({ theme }) => theme.breakpoints.down('sm')} {
+  ${({ theme }) => theme.breakpoints.down("sm")} {
     padding: 1rem;
     font-size: 0.9rem;
   }
-  ${({ theme }) => theme.breakpoints.up('md')} {
+  ${({ theme }) => theme.breakpoints.up("md")} {
     padding-left: 4rem;
     padding-right: 4rem;
   }
-  ${({ theme }) => theme.breakpoints.up('xl')} {
+  ${({ theme }) => theme.breakpoints.up("xl")} {
     padding-left: 10rem;
     padding-right: 10rem;
   }
-  ${({ theme }) => theme.breakpoints.up('xxl')} {
+  ${({ theme }) => theme.breakpoints.up("xxl")} {
     padding-left: 15rem;
     padding-right: 15rem;
   }
@@ -99,29 +99,40 @@ export default function Settings() {
     setShowSuccess(false);
     setShowError(false);
     e.preventDefault();
+
+    if (
+      newEmail === "" ||
+      confirmNewEmail === "" ||
+      passwordForEmailChange === ""
+    ) {
+      setShowError(true);
+      setErrorMessage("Please fill all fields.");
+      return;
+    }
+
+    if (newEmail !== confirmNewEmail) {
+      setShowError(true);
+      setErrorMessage("Please make sure the email addresses match.");
+      return;
+    }
+
+    if (!currentUser.email) {
+      setShowError(true);
+      setErrorMessage("User email not found.");
+      return;
+    }
+
     try {
-      if (
-        newEmail === "" ||
-        confirmNewEmail === "" ||
-        passwordForEmailChange === ""
-      ) {
-        setShowError(true);
-        setErrorMessage("Please fill all fields.");
-      } else if (newEmail === confirmNewEmail) {
-        const credential = EmailAuthProvider.credential(
-          currentUser.email,
-          passwordForEmailChange
-        );
-        await reauthenticateWithCredential(currentUser, credential);
-        await verifyBeforeUpdateEmail(currentUser, newEmail);
-        setShowSuccess(true);
-        setSuccessMessage(
-          "The system will send an email at your new address for you to verify it. Follow the steps in the email to finish the change."
-        );
-      } else {
-        setShowError(true);
-        setErrorMessage("Please make sure the email addresses match.");
-      }
+      const credential = EmailAuthProvider.credential(
+        currentUser.email,
+        passwordForEmailChange
+      );
+      await reauthenticateWithCredential(currentUser, credential);
+      await verifyBeforeUpdateEmail(currentUser, newEmail);
+      setShowSuccess(true);
+      setSuccessMessage(
+        "The system will send an email to your new address for you to verify it. Follow the steps in the email to finish the change."
+      );
     } catch (error: any) {
       const errorCode = error.code;
       setShowError(true);
@@ -150,23 +161,34 @@ export default function Settings() {
     setShowSuccess(false);
     setShowError(false);
     e.preventDefault();
+
+    if (newPassword === "" || confirmNewPassword === "") {
+      setShowError(true);
+      setErrorMessage("Please fill all fields.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setShowError(true);
+      setErrorMessage("Please make sure the new password fields match.");
+      return;
+    }
+
+    if (!currentUser.email) {
+      setShowError(true);
+      setErrorMessage("User email not found.");
+      return;
+    }
+
     try {
-      if (newPassword === "" || confirmNewPassword === "") {
-        setShowError(true);
-        setErrorMessage("Please fill all fields.");
-      } else if (newPassword === confirmNewPassword) {
-        const credential = EmailAuthProvider.credential(
-          currentUser.email,
-          currentPassword
-        );
-        await reauthenticateWithCredential(currentUser, credential);
-        await updatePassword(currentUser, newPassword);
-        setShowSuccess(true);
-        setSuccessMessage("Password changed successfully.");
-      } else {
-        setShowError(true);
-        setErrorMessage("Please make sure the new password fields match.");
-      }
+      const credential = EmailAuthProvider.credential(
+        currentUser.email,
+        currentPassword
+      );
+      await reauthenticateWithCredential(currentUser, credential);
+      await updatePassword(currentUser, newPassword);
+      setShowSuccess(true);
+      setSuccessMessage("Password changed successfully.");
     } catch (error: any) {
       const errorCode = error.code;
       setShowError(true);
@@ -199,19 +221,24 @@ export default function Settings() {
     setShowSuccess(false);
     setShowError(false);
     const auth = getAuth();
-    sendPasswordResetEmail(auth, currentUser.email)
-      .then(() => {
-        setShowSuccess(true);
-        setSuccessMessage(
-          "The system will send you an email to reset your password shortly."
-        );
-      })
-      .catch((error) => {
-        setShowError(true);
-        setErrorMessage(
-          "An unknown error occurred. Please wait a moment and try again."
-        );
-      });
+    if (currentUser.email) {
+      sendPasswordResetEmail(auth, currentUser.email)
+        .then(() => {
+          setShowSuccess(true);
+          setSuccessMessage(
+            "The system will send you an email to reset your password shortly."
+          );
+        })
+        .catch(() => {
+          setShowError(true);
+          setErrorMessage(
+            "An unknown error occurred. Please wait a moment and try again."
+          );
+        });
+    } else {
+      setShowError(true);
+      setErrorMessage("User email not found.");
+    }
   };
 
   useEffect(() => {
