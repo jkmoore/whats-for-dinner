@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import {
   StyledFormBackground,
@@ -12,7 +13,6 @@ import {
   StyledHeader,
   StyledTextCenter
 } from "../../StyledAuthForm";
-import { NavLink } from "react-router-dom";
 
 export default function PasswordReset() {
   const [email, setEmail] = useState("");

@@ -17,15 +17,13 @@ const StyledList = styled.ul`
   justify-content: space-between;
   align-items: flex-end;
   list-style-type: none;
+  margin: 1.5rem 1rem 0 1rem;
+  padding: 0;
+
   p {
     margin-block-start: 0;
     margin-block-end: 0;
   }
-  margin-bottom: 0rem;
-  margin-top: 1.5rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  padding: 0rem;
 `;
 
 const StyledImage = styled.img`
@@ -39,7 +37,7 @@ const StyledLink = styled(Link)<{ $isActive: boolean }>`
   border-bottom: ${(props) =>
     props.$isActive ? "0.25rem solid #D30000" : "0.25rem solid transparent"};
   &:hover {
-    color: #D30000;
+    color: #d30000;
   }
   padding: 0.25rem;
   display: inline-block;
@@ -53,7 +51,7 @@ export default function Navbar() {
     { path: "/inventory", text: "INVENTORY" },
     { path: "/shoppingList", text: "SHOPPING LIST" },
     { path: "/recipes", text: "RECIPES" },
-    { path: "/mealPlan", text: "MEAL PLAN"},
+    { path: "/mealPlan", text: "MEAL PLAN" },
     { path: "/settings", text: "SETTINGS" },
   ];
 

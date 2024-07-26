@@ -1,13 +1,13 @@
 import React from "react";
-import { DocumentData } from "firebase/firestore";
 import styled from "styled-components";
+import { DocumentData } from "firebase/firestore";
 import {
   DragDropContext,
   Draggable,
   DraggableProvided,
   Droppable,
   DropResult,
-  DroppableProvided
+  DroppableProvided,
 } from "@hello-pangea/dnd";
 
 const StyledList = styled.ul`
@@ -63,11 +63,15 @@ export default function InventoryList({
   onDeleteItem,
   onClickItem,
   onMoveItem,
-  isDndEnabled
+  isDndEnabled,
 }: ShoppingListListProps) {
   const onDragEnd = async (result: DropResult) => {
     if (result.destination) {
-      await onMoveItem(result.draggableId, result.source.index, result.destination.index);
+      await onMoveItem(
+        result.draggableId,
+        result.source.index,
+        result.destination.index
+      );
     }
   };
 
@@ -94,9 +98,7 @@ export default function InventoryList({
                         onDeleteItem(item.id);
                       }}
                     />
-                    <ItemNameSpan>
-                      {item.name}
-                    </ItemNameSpan>
+                    <ItemNameSpan>{item.name}</ItemNameSpan>
                   </StyledListItem>
                 )}
               </Draggable>
@@ -109,10 +111,7 @@ export default function InventoryList({
   ) : (
     <StyledList>
       {items.map((item) => (
-        <StyledListItem
-          key={item.id}
-          onClick={() => onClickItem(item)}
-        >
+        <StyledListItem key={item.id} onClick={() => onClickItem(item)}>
           <DeleteItemButton
             src={process.env.PUBLIC_URL + "/buttonDeleteItem.svg"}
             alt="Remove Item"
@@ -121,11 +120,9 @@ export default function InventoryList({
               onDeleteItem(item.id);
             }}
           />
-          <ItemNameSpan>
-            {item.name}
-          </ItemNameSpan>
+          <ItemNameSpan>{item.name}</ItemNameSpan>
         </StyledListItem>
       ))}
     </StyledList>
   );
-};
+}

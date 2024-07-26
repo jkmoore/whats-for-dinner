@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { auth, firestore } from "../../../firebase";
+import styled from "styled-components";
 import {
   DocumentData,
   QueryDocumentSnapshot,
@@ -15,10 +15,10 @@ import {
   where,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
+import { auth, firestore } from "../../../firebase";
+import InventoryList from "./InventoryList";
 import InventoryModal from "./InventoryModal";
 import InventoryItem from "./inventoryItem";
-import styled from "styled-components";
-import InventoryList from "./InventoryList";
 
 const StyledHeader = styled.div`
   display: flex;
@@ -59,18 +59,18 @@ const AddItemButton = styled.img`
 `;
 
 const StyledDiv = styled.div`
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  padding-left: 3rem;
-  padding-right: 3rem;
+  padding: 2rem 3rem;
+
   ${({ theme }) => theme.breakpoints.down('sm')} {
     padding: 1rem;
     font-size: 0.9rem;
   }
+
   ${({ theme }) => theme.breakpoints.up('xl')} {
     padding-left: 8rem;
     padding-right: 8rem;
   }
+
   ${({ theme }) => theme.breakpoints.up('xxl')} {
     padding-left: 15rem;
     padding-right: 15rem;

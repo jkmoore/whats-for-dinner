@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { auth, firestore } from "../../../firebase";
+import styled from "styled-components";
 import {
   DocumentData,
   QueryDocumentSnapshot,
@@ -15,10 +15,10 @@ import {
   where,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
-import ShoppingListItem from "./shoppingListItem";
-import styled from "styled-components";
+import { auth, firestore } from "../../../firebase";
 import ShoppingListModal from "./ShoppingListModal";
 import ShoppingListList from "./ShoppingListList";
+import ShoppingListItem from "./shoppingListItem";
 
 const StyledHeader = styled.div`
   display: flex;

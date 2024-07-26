@@ -21,12 +21,54 @@ export default function HamburgerMenu() {
   };
 
   return (
-    <Menu right customBurgerIcon={ <img src={process.env.PUBLIC_URL + "/hamburgerMenu.svg" } alt="Menu" />} isOpen={menuOpen} onStateChange={handleStateChange}>
-      <StyledLink id="inventory" className="menu-item" to="/inventory" onClick={closeMenu}>Inventory</StyledLink>
-      <StyledLink id="shoppingList" className="menu-item" to="/shoppingList" onClick={closeMenu}>Shopping List</StyledLink>
-      <StyledLink id="recipes" className="menu-item" to="/recipes" onClick={closeMenu}>Recipes</StyledLink>
-      <StyledLink id="mealPlan" className="menu-item" to="/mealPlan" onClick={closeMenu}>Meal Plan</StyledLink>
-      <StyledLink id="settings" className="menu-item" to="/settings" onClick={closeMenu}>Settings</StyledLink>
+    <Menu
+      right
+      customBurgerIcon={
+        <img src={process.env.PUBLIC_URL + "/hamburgerMenu.svg"} alt="Menu" />
+      }
+      isOpen={menuOpen}
+      onStateChange={handleStateChange}
+    >
+      <StyledLink
+        id="inventory"
+        className="menu-item"
+        to="/inventory"
+        onClick={closeMenu}
+      >
+        Inventory
+      </StyledLink>
+      <StyledLink
+        id="shoppingList"
+        className="menu-item"
+        to="/shoppingList"
+        onClick={closeMenu}
+      >
+        Shopping List
+      </StyledLink>
+      <StyledLink
+        id="recipes"
+        className="menu-item"
+        to="/recipes"
+        onClick={closeMenu}
+      >
+        Recipes
+      </StyledLink>
+      <StyledLink
+        id="mealPlan"
+        className="menu-item"
+        to="/mealPlan"
+        onClick={closeMenu}
+      >
+        Meal Plan
+      </StyledLink>
+      <StyledLink
+        id="settings"
+        className="menu-item"
+        to="/settings"
+        onClick={closeMenu}
+      >
+        Settings
+      </StyledLink>
       <LogOutButton type="hamburgerMenu" />
     </Menu>
   );

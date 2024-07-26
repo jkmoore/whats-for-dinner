@@ -1,7 +1,7 @@
 import React from "react";
-import { auth } from "../../../firebase";
 import { Link } from "react-router-dom";
 import { User } from "firebase/auth";
+import { auth } from "../../../firebase";
 
 export default function NotFound() {
   const user: User | null = auth.currentUser;

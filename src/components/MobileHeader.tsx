@@ -1,6 +1,6 @@
 import React from "react";
-import HamburgerMenu from "./HamburgerMenu";
 import styled from "styled-components";
+import HamburgerMenu from "./HamburgerMenu";
 
 const StyledImg = styled.img`
   align-self: flex-end;

@@ -1,14 +1,16 @@
 import React from "react";
-import { DocumentData } from "firebase/firestore";
 import styled from "styled-components";
+import { DocumentData } from "firebase/firestore";
 import {
   DragDropContext,
   Draggable,
   DraggableProvided,
   Droppable,
   DropResult,
-  DroppableProvided
+  DroppableProvided,
 } from "@hello-pangea/dnd";
+
+const URGENT_THRESHOLD_DAYS = 3;
 
 const StyledList = styled.ul`
   padding: 0rem;
@@ -68,19 +70,23 @@ export default function InventoryList({
   onDeleteItem,
   onClickItem,
   onMoveItem,
-  isDndEnabled
+  isDndEnabled,
 }: InventoryListProps) {
   const isUrgent = (expirationDate: Date): boolean => {
     const today = new Date();
     const differenceInDays = Math.floor(
       (expirationDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000)
     );
-    return differenceInDays < 3;
+    return differenceInDays < URGENT_THRESHOLD_DAYS;
   };
 
   const onDragEnd = async (result: DropResult) => {
     if (result.destination) {
-      await onMoveItem(result.draggableId, result.source.index, result.destination.index);
+      await onMoveItem(
+        result.draggableId,
+        result.source.index,
+        result.destination.index
+      );
     }
   };
 
@@ -107,11 +113,11 @@ export default function InventoryList({
                         onDeleteItem(item.id);
                       }}
                     />
-                    <ItemNameSpan>
-                      {item.name}
-                    </ItemNameSpan>
+                    <ItemNameSpan>{item.name}</ItemNameSpan>
                     {item.expiration && (
-                      <ItemExpirationSpan $urgent={isUrgent(item.expiration.toDate())}>
+                      <ItemExpirationSpan
+                        $urgent={isUrgent(item.expiration.toDate())}
+                      >
                         {item.expiration.toDate().toISOString().slice(0, 10)}
                       </ItemExpirationSpan>
                     )}
@@ -127,10 +133,7 @@ export default function InventoryList({
   ) : (
     <StyledList>
       {items.map((item) => (
-        <StyledListItem
-          key={item.id}
-          onClick={() => onClickItem(item)}
-        >
+        <StyledListItem key={item.id} onClick={() => onClickItem(item)}>
           <DeleteItemButton
             src={process.env.PUBLIC_URL + "/buttonDeleteItem.svg"}
             alt="Remove Item"
@@ -139,9 +142,7 @@ export default function InventoryList({
               onDeleteItem(item.id);
             }}
           />
-          <ItemNameSpan>
-            {item.name}
-          </ItemNameSpan>
+          <ItemNameSpan>{item.name}</ItemNameSpan>
           {item.expiration && (
             <ItemExpirationSpan $urgent={isUrgent(item.expiration.toDate())}>
               {item.expiration.toDate().toISOString().slice(0, 10)}
@@ -151,4 +152,4 @@ export default function InventoryList({
       ))}
     </StyledList>
   );
-};
+}

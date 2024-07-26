@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import Ingredient from "./ingredient";
 import {
   addDoc,
   collection,
@@ -13,12 +12,13 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import { auth, firestore } from "../../../firebase";
 import { User } from "firebase/auth";
+import { auth, firestore } from "../../../firebase";
 import ConfirmModal from "./ConfirmModal";
-import { RecipeType } from "./searchModifierTypes";
 import RecipeHeader from "./RecipeHeader";
 import RecipeContents from "./RecipeContents";
+import { RecipeType } from "./searchModifierTypes";
+import Ingredient from "./ingredient";
 
 const RecipeDetailsContainer = styled.div`
   position: fixed;

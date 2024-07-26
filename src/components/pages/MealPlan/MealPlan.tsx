@@ -1,7 +1,6 @@
-import { User } from "firebase/auth";
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { auth, firestore } from "../../../firebase";
+import { User } from "firebase/auth";
 import {
   DocumentData,
   QueryDocumentSnapshot,
@@ -16,9 +15,10 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import MealPlanItem from "./mealPlanItem";
-import MealPlanDay from "./MealPlanDay";
+import { auth, firestore } from "../../../firebase";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import MealPlanDay from "./MealPlanDay";
+import MealPlanItem from "./mealPlanItem";
 
 const NUM_DAYS_ON_SCREEN = 7;
 

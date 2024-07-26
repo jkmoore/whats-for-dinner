@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { sendEmailVerification, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "../../../firebase";
-import { NavLink, useNavigate } from "react-router-dom";
 import {
   StyledFormBackground,
   StyledFormContainer,

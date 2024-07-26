@@ -1,8 +1,8 @@
 import React from "react";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 
 const NavbarButton = styled.button`
   border: none;
@@ -23,7 +23,7 @@ const HamburgerMenuButton = styled.button`
 `;
 
 interface LogoutButtonProps {
-  type: 'navbar' | 'hamburgerMenu';
+  type: "navbar" | "hamburgerMenu";
 }
 
 export default function LogOutButton({ type }: LogoutButtonProps) {
@@ -38,9 +38,7 @@ export default function LogOutButton({ type }: LogoutButtonProps) {
       .catch((error) => {
         console.error(error);
       });
-  };  
-  
-  return (
-    <Button onClick={handleLogout}>Log Out</Button>
-  );
+  };
+
+  return <Button onClick={handleLogout}>Log Out</Button>;
 }

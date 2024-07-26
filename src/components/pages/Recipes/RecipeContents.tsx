@@ -1,8 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 import TextareaAutosize from "react-textarea-autosize";
-import Ingredient from "./ingredient";
+import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
+import Ingredient from "./ingredient";
 
 const Container = styled.div`
   display: flex;

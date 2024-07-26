@@ -9,8 +9,8 @@ export const StyledFormBackground = styled.div`
   position: fixed;
   background-color: inherit;
   background-image: inherit;
-  ${({ theme }) => theme.breakpoints.down('sm')} {
-    background-color: white  !important;
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    background-color: white !important;
     background-image: none;
   }
 `;
@@ -25,7 +25,7 @@ export const StyledFormContainer = styled.div`
   background: white;
   border-radius: 1rem;
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
-  ${({ theme }) => theme.breakpoints.down('sm')} {
+  ${({ theme }) => theme.breakpoints.down("sm")} {
     box-shadow: none;
   }
 `;

@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import RecipeDetails from "./RecipeDetails";
 import styled from "styled-components";
 import { User } from "firebase/auth";
-import { auth, firestore } from "../../../firebase";
 import {
   DocumentData,
   QueryDocumentSnapshot,
@@ -16,9 +14,11 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import { auth, firestore } from "../../../firebase";
+import Recipe from "./recipe";
+import RecipeDetails from "./RecipeDetails";
 import SearchModifiers from "./SearchModifiers";
 import { RecipeTime, RecipeType, SearchMode } from "./searchModifierTypes";
-import Recipe from "./recipe";
 
 const INGREDIENT_SEARCH_CHUNK_SIZE = 30;
 

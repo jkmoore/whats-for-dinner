@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import MealPlanItem from "./mealPlanItem";
 import TextareaAutosize from "react-textarea-autosize";
+import styled from "styled-components";
 import {
   Draggable,
   DraggableProvided,
   Droppable,
   DroppableProvided,
 } from "@hello-pangea/dnd";
+import MealPlanItem from "./mealPlanItem";
 
 const Day = styled.div`
   display: flex;
