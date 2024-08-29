@@ -18,7 +18,7 @@ import { User } from "firebase/auth";
 import { auth, firestore } from "../../../firebase";
 import InventoryList from "./InventoryList";
 import InventoryModal from "./InventoryModal";
-import InventoryItem from "./inventoryItem";
+import InventoryItem from "./InventoryItem";
 
 const StyledHeader = styled.div`
   display: flex;

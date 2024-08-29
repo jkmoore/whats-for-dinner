@@ -18,7 +18,7 @@ import { User } from "firebase/auth";
 import { auth, firestore } from "../../../firebase";
 import ShoppingListModal from "./ShoppingListModal";
 import ShoppingListList from "./ShoppingListList";
-import ShoppingListItem from "./shoppingListItem";
+import ShoppingListItem from "./ShoppingListItem";
 
 const StyledHeader = styled.div`
   display: flex;

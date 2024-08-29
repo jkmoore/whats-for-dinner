@@ -7,7 +7,7 @@ import {
   Droppable,
   DroppableProvided,
 } from "@hello-pangea/dnd";
-import MealPlanItem from "./mealPlanItem";
+import MealPlanItem from "./MealPlanItem";
 
 const Day = styled.div`
   display: flex;

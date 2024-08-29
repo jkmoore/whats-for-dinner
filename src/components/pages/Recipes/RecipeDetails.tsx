@@ -17,8 +17,8 @@ import { auth, firestore } from "../../../firebase";
 import ConfirmModal from "./ConfirmModal";
 import RecipeHeader from "./RecipeHeader";
 import RecipeContents from "./RecipeContents";
-import { RecipeType } from "./searchModifierTypes";
-import Ingredient from "./ingredient";
+import { RecipeType } from "./SearchModifierTypes";
+import Ingredient from "./Ingredient";
 
 const RecipeDetailsContainer = styled.div`
   position: fixed;

@@ -18,7 +18,7 @@ import {
 import { auth, firestore } from "../../../firebase";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import MealPlanDay from "./MealPlanDay";
-import MealPlanItem from "./mealPlanItem";
+import MealPlanItem from "./MealPlanItem";
 
 const NUM_DAYS_ON_SCREEN = 7;
 

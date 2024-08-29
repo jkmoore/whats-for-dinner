@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import ShoppingListItem from "./shoppingListItem";
+import ShoppingListItem from "./ShoppingListItem";
 
 const Background = styled.div`
   background-color: rgba(0, 0, 0, 0.2);

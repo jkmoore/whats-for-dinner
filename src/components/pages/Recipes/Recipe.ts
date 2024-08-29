@@ -1,4 +1,4 @@
-import { RecipeType } from "./searchModifierTypes";
+import { RecipeType } from "./SearchModifierTypes";
 
 export default interface Recipe {
   id: string;

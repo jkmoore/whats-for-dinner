@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import InventoryItem from "./inventoryItem";
+import InventoryItem from "./InventoryItem";
 
 const Background = styled.div`
   background-color: rgba(0, 0, 0, 0.2);

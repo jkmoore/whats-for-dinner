@@ -15,10 +15,10 @@ import {
   where,
 } from "firebase/firestore";
 import { auth, firestore } from "../../../firebase";
-import Recipe from "./recipe";
+import Recipe from "./Recipe";
 import RecipeDetails from "./RecipeDetails";
 import SearchModifiers from "./SearchModifiers";
-import { RecipeTime, RecipeType, SearchMode } from "./searchModifierTypes";
+import { RecipeTime, RecipeType, SearchMode } from "./SearchModifierTypes";
 
 const INGREDIENT_SEARCH_CHUNK_SIZE = 30;
 

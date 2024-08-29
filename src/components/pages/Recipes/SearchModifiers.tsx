@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { RecipeTime, RecipeType, SearchMode } from "./searchModifierTypes";
+import { RecipeTime, RecipeType, SearchMode } from "./SearchModifierTypes";
 
 type Position = "left" | "right";
 
