@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { User } from "firebase/auth";
 
 export type AuthContextType = {
-  currentUser: User;
+  currentUser: User | null;
 };
 
 export const AuthContext = React.createContext<AuthContextType | undefined>(

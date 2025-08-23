@@ -101,6 +101,12 @@ export default function Settings() {
     setShowError(false);
     e.preventDefault();
 
+    if (!currentUser) {
+      setShowError(true);
+      setErrorMessage("No user is currently logged in.");
+      return;
+    }
+
     if (
       newEmail === "" ||
       confirmNewEmail === "" ||
@@ -163,6 +169,12 @@ export default function Settings() {
     setShowError(false);
     e.preventDefault();
 
+    if (!currentUser) {
+      setShowError(true);
+      setErrorMessage("No user is currently logged in.");
+      return;
+    }
+
     if (newPassword === "" || confirmNewPassword === "") {
       setShowError(true);
       setErrorMessage("Please fill all fields.");
@@ -222,6 +234,13 @@ export default function Settings() {
     setShowSuccess(false);
     setShowError(false);
     const auth = getAuth();
+
+    if (!currentUser) {
+      setShowError(true);
+      setErrorMessage("No user is currently logged in.");
+      return;
+    }
+    
     if (currentUser.email) {
       sendPasswordResetEmail(auth, currentUser.email)
         .then(() => {

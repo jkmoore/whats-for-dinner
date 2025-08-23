@@ -15,6 +15,7 @@ export default function PrivateRoute({ children }: PrivateRouteProps) {
     return <Navigate to="/login" replace />;
   } else if (!currentUser.emailVerified) {
     signOut(auth);
+    return <Navigate to="/login" replace />;
   } else {
     return <>{children}</>;
   }
