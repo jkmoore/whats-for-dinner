@@ -1,5 +1,16 @@
 {
   "projects": {
     "default": "whats-for-dinner-26f01"
-  }
+  },
+  "targets": {
+    "whats-for-dinner-26f01": {
+      "hosting": {
+        "default": [
+          "whats-for-dinner-26f01"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }
