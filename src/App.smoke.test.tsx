@@ -4,19 +4,6 @@ import { ThemeProvider } from "styled-components";
 import App from "./App";
 import { createStyledBreakpointsTheme } from "styled-breakpoints";
 
-beforeAll(() => {
-  window.matchMedia = (query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  });
-});
-
 const theme = createStyledBreakpointsTheme();
 
 describe("Smoke test for App", () => {
