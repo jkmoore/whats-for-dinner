@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
 import { ThemeProvider } from "styled-components";
 import { createStyledBreakpointsTheme } from "styled-breakpoints";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import "./index.css";
 
 const theme = createStyledBreakpointsTheme();
 
@@ -20,3 +21,4 @@ root.render(
   </ThemeProvider>
 );
 
+reportWebVitals(console.log);
