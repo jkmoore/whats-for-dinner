@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuthValue } from "./AuthContext";
-import React from "react";
 
 type LoggedOutRouteProps = {
   children: ReactNode;

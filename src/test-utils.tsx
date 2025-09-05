@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { ThemeProvider } from "styled-components";
 import { createStyledBreakpointsTheme } from "styled-breakpoints";

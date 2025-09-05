@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { slide as Menu } from "react-burger-menu";
 import { Link } from "react-router-dom";
 import styled from "styled-components";

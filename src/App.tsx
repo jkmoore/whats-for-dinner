@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import styled, { useTheme } from "styled-components";
 import { useMediaQuery } from "styled-breakpoints/use-media-query";
