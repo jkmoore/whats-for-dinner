@@ -13,7 +13,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
-import { auth, firestore } from "../../../firebase";
+import { auth, firestore } from "../../../services/firebase";
 import ConfirmModal from "./ConfirmModal";
 import RecipeHeader from "./RecipeHeader";
 import RecipeContents from "./RecipeContents";

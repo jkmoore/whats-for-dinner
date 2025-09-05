@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../../services/firebase";
 
 const NavbarButton = styled.button`
   border: none;

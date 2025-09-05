@@ -8,6 +8,7 @@ import {
   DroppableProvided,
 } from "@hello-pangea/dnd";
 import MealPlanItem from "./MealPlanItem";
+import deleteIcon from "../../../assets/icons/button-delete-meal.svg";
 
 const Day = styled.div`
   display: flex;
@@ -206,7 +207,7 @@ export default function MealPlanDay({
                       {...dragProvided.draggableProps}
                     >
                       <DeleteMealButton
-                        src={process.env.PUBLIC_URL + "/buttonDeleteMeal.svg"}
+                        src={deleteIcon}
                         alt="Remove Meal"
                         onClick={() => onDeleteItem(meal.id, date)}
                       />

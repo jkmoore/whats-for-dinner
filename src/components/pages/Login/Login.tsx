@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { sendEmailVerification, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { auth } from "../../../firebase";
+import { auth } from "../../../services/firebase";
 import {
   StyledFormBackground,
   StyledFormContainer,
@@ -11,7 +11,8 @@ import {
   StyledForm,
   ErrorMessage,
   StyledTextCenter
-} from "../../../components/StyledAuthForm";
+} from "../../common/StyledAuthForm";
+import logo from "../../../assets/images/logo-navbar.svg"
 
 export default function Login() {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ export default function Login() {
   return (
     <StyledFormBackground>
       <StyledFormContainer>
-        <StyledImg src={process.env.PUBLIC_URL + "/logoNavbar.svg"} alt="What's for Dinner?"/>
+        <StyledImg src={logo} alt="What's for Dinner?"/>
         <StyledForm>
           <StyledInput
             id="email-address"

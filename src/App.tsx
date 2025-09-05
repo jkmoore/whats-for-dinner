@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import styled, { useTheme } from "styled-components";
 import { useMediaQuery } from "styled-breakpoints/use-media-query";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "./firebase";
-import { AuthProvider } from "./AuthContext";
+import { auth } from "./services/firebase";
+import { AuthProvider } from "./contexts/AuthContext";
 import Inventory from "./components/pages/Inventory/Inventory";
 import ShoppingList from "./components/pages/ShoppingList/ShoppingList";
 import Recipes from "./components/pages/Recipes/Recipes";
@@ -14,10 +14,10 @@ import Signup from "./components/pages/Signup/Signup";
 import Login from "./components/pages/Login/Login";
 import PasswordReset from "./components/pages/PasswordReset/PasswordReset";
 import NotFound from "./components/pages/NotFound/NotFound";
-import PrivateRoute from "./PrivateRoute";
-import LoggedOutRoute from "./LoggedOutRoute";
-import Navbar from "./components/Navbar";
-import MobileHeader from "./components/MobileHeader";
+import PrivateRoute from "./routes/PrivateRoute";
+import LoggedOutRoute from "./routes/LoggedOutRoute";
+import Navbar from "./components/common/Navbar";
+import MobileHeader from "./components/common/MobileHeader";
 
 const Container = styled.div`
   height: 100vh;

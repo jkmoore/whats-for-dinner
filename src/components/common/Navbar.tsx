@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import LogOutButton from "./LogOutButton";
+import logo from "../../assets/images/logo-navbar.svg"
 
 const StyledDiv = styled.div`
   display: flex;
@@ -58,7 +59,7 @@ export default function Navbar() {
     <StyledDiv>
       <StyledList>
         <StyledImage
-          src={process.env.PUBLIC_URL + "/logoNavbar.svg"}
+          src={logo}
           alt="What's for Dinner?"
         />
         {navLinks.map((link) => (

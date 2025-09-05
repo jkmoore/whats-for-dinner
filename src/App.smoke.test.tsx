@@ -1,4 +1,4 @@
-import { render, screen } from "./test-utils";
+import { render, screen } from "./utils/test-utils";
 import App from "./App";
 
 describe("Smoke test for App", () => {

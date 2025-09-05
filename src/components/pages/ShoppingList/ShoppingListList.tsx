@@ -8,6 +8,7 @@ import {
   DropResult,
   DroppableProvided,
 } from "@hello-pangea/dnd";
+import deleteIcon from "../../../assets/icons/button-delete-item.svg";
 
 const StyledList = styled.ul`
   padding: 0rem;
@@ -90,7 +91,7 @@ export default function InventoryList({
                     onClick={() => onClickItem(item)}
                   >
                     <DeleteItemButton
-                      src={process.env.PUBLIC_URL + "/buttonDeleteItem.svg"}
+                      src={deleteIcon}
                       alt="Remove Item"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -112,7 +113,7 @@ export default function InventoryList({
       {items.map((item) => (
         <StyledListItem key={item.id} onClick={() => onClickItem(item)}>
           <DeleteItemButton
-            src={process.env.PUBLIC_URL + "/buttonDeleteItem.svg"}
+            src={deleteIcon}
             alt="Remove Item"
             onClick={(e) => {
               e.stopPropagation();

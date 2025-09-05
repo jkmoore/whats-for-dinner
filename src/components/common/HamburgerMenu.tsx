@@ -3,6 +3,7 @@ import { slide as Menu } from "react-burger-menu";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import LogOutButton from "./LogOutButton";
+import hamburgerMenuIcon from "../../assets/icons/hamburger-menu.svg";
 
 const StyledLink = styled(Link)`
   text-decoration: none;
@@ -24,7 +25,7 @@ export default function HamburgerMenu() {
     <Menu
       right
       customBurgerIcon={
-        <img src={process.env.PUBLIC_URL + "/hamburgerMenu.svg"} alt="Menu" />
+        <img src={hamburgerMenuIcon} alt="Menu" />
       }
       isOpen={menuOpen}
       onStateChange={handleStateChange}

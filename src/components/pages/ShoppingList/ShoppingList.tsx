@@ -15,10 +15,11 @@ import {
   where,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
-import { auth, firestore } from "../../../firebase";
+import { auth, firestore } from "../../../services/firebase";
 import ShoppingListModal from "./ShoppingListModal";
 import ShoppingListList from "./ShoppingListList";
 import ShoppingListItem from "./ShoppingListItem";
+import addIcon from "../../../assets/icons/button-add-item.svg";
 
 const StyledHeader = styled.div`
   display: flex;
@@ -266,7 +267,7 @@ export default function ShoppingList() {
     <StyledDiv>
       <StyledHeader>
         <AddItemButton
-          src={process.env.PUBLIC_URL + "/buttonAddItem.svg"}
+          src={addIcon}
           alt="Add Item"
           onClick={() => {
             setModalMode("add");

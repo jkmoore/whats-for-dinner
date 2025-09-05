@@ -3,6 +3,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import Ingredient from "./Ingredient";
+import deleteIcon from "../../../assets/icons/button-delete-meal.svg";
 
 const Container = styled.div`
   display: flex;
@@ -154,7 +155,7 @@ export default function RecipeContents({
                     maxLength={50}
                   />
                   <DeleteIngredientButton
-                    src={process.env.PUBLIC_URL + "/buttonDeleteMeal.svg"}
+                    src={deleteIcon}
                     alt="Delete ingredient"
                     onClick={() =>
                       setIngredients(ingredients.filter((_, i) => i !== index))

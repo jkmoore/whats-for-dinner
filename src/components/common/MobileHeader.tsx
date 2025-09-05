@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import HamburgerMenu from "./HamburgerMenu";
+import logo from "../../assets/images/logo-navbar.png"
 
 const StyledImg = styled.img`
   align-self: flex-end;
@@ -50,7 +51,7 @@ export default function MobileHeader() {
   return (
     <StyledContainer id="container">
       <StyledImg
-        src={process.env.PUBLIC_URL + "/logoNavbar.png"}
+        src={logo}
         alt="What's for Dinner?"
       />
       <div id="page-wrap" />

@@ -12,7 +12,8 @@ import {
   StyledText,
   StyledHeader,
   StyledTextCenter
-} from "../../StyledAuthForm";
+} from "../../common/StyledAuthForm";
+import logo from "../../../assets/images/logo-navbar.svg";
 
 export default function PasswordReset() {
   const [email, setEmail] = useState("");
@@ -49,7 +50,7 @@ export default function PasswordReset() {
   return (
     <StyledFormBackground>
       <StyledFormContainer>
-        <StyledImg src={process.env.PUBLIC_URL + "/logoNavbar.svg"} alt="What's for Dinner?"/>
+        <StyledImg src={logo} alt="What's for Dinner?"/>
         <StyledHeader>Reset your password</StyledHeader>
         <StyledForm>
           <StyledInput

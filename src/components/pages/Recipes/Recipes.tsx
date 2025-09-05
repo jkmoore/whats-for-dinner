@@ -14,11 +14,13 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { auth, firestore } from "../../../firebase";
+import { auth, firestore } from "../../../services/firebase";
 import Recipe from "./Recipe";
 import RecipeDetails from "./RecipeDetails";
 import SearchModifiers from "./SearchModifiers";
 import { RecipeTime, RecipeType, SearchMode } from "./SearchModifierTypes";
+import addIcon from "../../../assets/icons/button-add-item.svg";
+import deleteIcon from "../../../assets/icons/button-delete-meal.svg";
 
 const INGREDIENT_SEARCH_CHUNK_SIZE = 30;
 
@@ -425,7 +427,7 @@ export default function Recipes() {
           <StyledHeader>
             <SearchBarContainer>
               <AddRecipeButton
-                src={process.env.PUBLIC_URL + "/buttonAddItem.svg"}
+                src={addIcon}
                 onClick={handleAddRecipeButtonClicked}
               />
               <SearchBar
@@ -458,7 +460,7 @@ export default function Recipes() {
                   searchedIngredients.map((ingredient, index) => (
                     <SearchTerm key={index}>
                       <DeleteButton
-                        src={process.env.PUBLIC_URL + "/buttonDeleteMeal.svg"}
+                        src={deleteIcon}
                         alt="Remove search term"
                         onClick={() => onDeleteSearchTerm(index)}
                       />

@@ -6,7 +6,7 @@ import {
   sendEmailVerification,
   signOut,
 } from "firebase/auth";
-import { auth } from "../../../firebase";
+import { auth } from "../../../services/firebase";
 import {
   StyledFormBackground,
   StyledFormContainer,
@@ -17,7 +17,8 @@ import {
   ErrorMessage,
   StyledText,
   StyledTextCenter,
-} from "../../StyledAuthForm";
+} from "../../common/StyledAuthForm";
+import logo from "../../../assets/images/logo-navbar.svg";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -84,7 +85,7 @@ export default function Signup() {
     <StyledFormBackground>
       <StyledFormContainer>
         <StyledImg
-          src={process.env.PUBLIC_URL + "/logoNavbar.svg"}
+          src={logo}
           alt="What's for Dinner?"
         />
         <StyledForm>
