@@ -1,9 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
 import { ThemeProvider } from "styled-components";
-import { createStyledBreakpointsTheme } from 'styled-breakpoints';
+import { createStyledBreakpointsTheme } from "styled-breakpoints";
 
 const theme = createStyledBreakpointsTheme();
 
