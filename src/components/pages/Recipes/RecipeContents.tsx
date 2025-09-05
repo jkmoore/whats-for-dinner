@@ -1,4 +1,3 @@
-import React from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
