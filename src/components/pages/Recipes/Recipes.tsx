@@ -14,13 +14,13 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { auth, firestore } from "../../../services/firebase";
+import { auth, firestore } from "services/firebase";
 import Recipe from "./Recipe";
 import RecipeDetails from "./RecipeDetails";
 import SearchModifiers from "./SearchModifiers";
 import { RecipeTime, RecipeType, SearchMode } from "./SearchModifierTypes";
-import addIcon from "../../../assets/icons/button-add-item.svg";
-import deleteIcon from "../../../assets/icons/button-delete-meal.svg";
+import addIcon from "assets/icons/button-add-item.svg";
+import deleteIcon from "assets/icons/button-delete-meal.svg";
 
 const INGREDIENT_SEARCH_CHUNK_SIZE = 30;
 

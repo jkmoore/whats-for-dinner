@@ -8,7 +8,7 @@ import {
   updatePassword,
   verifyBeforeUpdateEmail,
 } from "firebase/auth"
-import { useAuthValue } from "../../../contexts/AuthContext";
+import { useAuthValue } from "contexts/AuthContext";
 
 const StyledDiv = styled.div`
   width: 100%;

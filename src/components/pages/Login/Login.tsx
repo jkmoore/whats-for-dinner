@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { sendEmailVerification, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { auth } from "../../../services/firebase";
+import { auth } from "services/firebase";
 import {
   StyledFormBackground,
   StyledFormContainer,
@@ -11,8 +11,8 @@ import {
   StyledForm,
   ErrorMessage,
   StyledTextCenter
-} from "../../../components/common/StyledAuthForm";
-import logo from "../../../assets/images/logo-navbar.svg";
+} from "components/common/StyledAuthForm";
+import logo from "assets/images/logo-navbar.svg";
 
 interface FirebaseAuthError extends Error {
   code: string;

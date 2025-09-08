@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import { auth } from "../services/firebase";
-import { useAuthValue } from "../contexts/AuthContext";
+import { auth } from "services/firebase";
+import { useAuthValue } from "contexts/AuthContext";
 
 type PrivateRouteProps = {
   children: ReactNode;

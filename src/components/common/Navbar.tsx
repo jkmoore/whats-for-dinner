@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import LogOutButton from "./LogOutButton";
-import logo from "../../assets/images/logo-navbar.svg"
+import logo from "assets/images/logo-navbar.svg"
 
 const StyledDiv = styled.div`
   display: flex;

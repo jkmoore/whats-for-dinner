@@ -8,7 +8,7 @@ import {
   DroppableProvided,
 } from "@hello-pangea/dnd";
 import MealPlanItem from "./MealPlanItem";
-import deleteIcon from "../../../assets/icons/button-delete-meal.svg";
+import deleteIcon from "assets/icons/button-delete-meal.svg";
 
 const Day = styled.div`
   display: flex;

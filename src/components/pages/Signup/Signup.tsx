@@ -6,7 +6,7 @@ import {
   sendEmailVerification,
   signOut,
 } from "firebase/auth";
-import { auth } from "../../../services/firebase";
+import { auth } from "services/firebase";
 import {
   StyledFormBackground,
   StyledFormContainer,
@@ -17,8 +17,8 @@ import {
   ErrorMessage,
   StyledText,
   StyledTextCenter,
-} from "../../common/StyledAuthForm";
-import logo from "../../../assets/images/logo-navbar.svg";
+} from "components/common/StyledAuthForm";
+import logo from "assets/images/logo-navbar.svg";
 
 export default function Signup() {
   const [email, setEmail] = useState("");

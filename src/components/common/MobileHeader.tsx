@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import HamburgerMenu from "./HamburgerMenu";
-import logo from "../../assets/images/logo-navbar.png"
+import logo from "assets/images/logo-navbar.png"
 
 const StyledImg = styled.img`
   align-self: flex-end;

@@ -8,7 +8,7 @@ import {
   DropResult,
   DroppableProvided,
 } from "@hello-pangea/dnd";
-import deleteIcon from "../../../assets/icons/button-delete-item.svg";
+import deleteIcon from "assets/icons/button-delete-item.svg";
 
 const StyledList = styled.ul`
   padding: 0rem;

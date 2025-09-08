@@ -15,11 +15,11 @@ import {
   where,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
-import { auth, firestore } from "../../../services/firebase";
+import { auth, firestore } from "services/firebase";
 import ShoppingListModal from "./ShoppingListModal";
 import ShoppingListList from "./ShoppingListList";
 import ShoppingListItem from "./ShoppingListItem";
-import addIcon from "../../../assets/icons/button-add-item.svg";
+import addIcon from "assets/icons/button-add-item.svg";
 
 const StyledHeader = styled.div`
   display: flex;

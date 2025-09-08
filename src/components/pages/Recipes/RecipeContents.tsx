@@ -2,7 +2,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import Ingredient from "./Ingredient";
-import deleteIcon from "../../../assets/icons/button-delete-meal.svg";
+import deleteIcon from "assets/icons/button-delete-meal.svg";
 
 const Container = styled.div`
   display: flex;

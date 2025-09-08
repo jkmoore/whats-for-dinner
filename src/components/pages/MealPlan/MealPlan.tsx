@@ -15,7 +15,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { auth, firestore } from "../../../services/firebase";
+import { auth, firestore } from "services/firebase";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import MealPlanDay from "./MealPlanDay";
 import MealPlanItem from "./MealPlanItem";

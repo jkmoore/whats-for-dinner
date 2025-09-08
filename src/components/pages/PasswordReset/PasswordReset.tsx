@@ -12,8 +12,8 @@ import {
   StyledText,
   StyledHeader,
   StyledTextCenter
-} from "../../common/StyledAuthForm";
-import logo from "../../../assets/images/logo-navbar.svg";
+} from "components/common/StyledAuthForm";
+import logo from "assets/images/logo-navbar.svg";
 
 export default function PasswordReset() {
   const [email, setEmail] = useState("");
