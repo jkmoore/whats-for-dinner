@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   DocumentData,
-  QueryDocumentSnapshot,
   QuerySnapshot,
   addDoc,
   collection,
   deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -18,8 +18,9 @@ import { User } from "firebase/auth";
 import { auth, firestore } from "services/firebase";
 import InventoryList from "./InventoryList";
 import InventoryModal from "./InventoryModal";
-import InventoryItem from "./InventoryItem";
+import InventoryItem, { InventoryItemDTO } from "./InventoryItem";
 import addIcon from "assets/icons/button-add-item.svg";
+import { firestoreDocToInventoryItemDTO } from "utils/firestoreConverters";
 
 const StyledHeader = styled.div`
   display: flex;
@@ -83,12 +84,12 @@ type ModalMode = "add" | "edit";
 export default function Inventory() {
   const [loading, setLoading] = useState<boolean>(true);
   const [maxOrder, setMaxOrder] = useState<number>(0);
-  const [inventory, setInventory] = useState<DocumentData[]>([]);
+  const [inventory, setInventory] = useState<InventoryItemDTO[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<ModalMode>("add");
   const [itemToEdit, setItemToEdit] = useState<string | null>(null);
   const [selectedItemData, setSelectedItemData] = useState<InventoryItem | null>(null);
-  const [searchResults, setSearchResults] = useState<DocumentData[]>([]);
+  const [searchResults, setSearchResults] = useState<InventoryItemDTO[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
 
   const user: User | null = auth.currentUser;
@@ -137,9 +138,9 @@ export default function Inventory() {
     }
   };
 
-  const handleDeleteItem = async (itemId: string | undefined) => {
+  const handleDeleteItem = async (itemId: string) => {
     try {
-      const itemRef = doc(collection(firestore, "inventory"), itemId);
+      const itemRef = doc(firestore, "inventory", itemId);
       await deleteDoc(itemRef);
       setInventory((prevInventory) =>
         prevInventory.filter((item) => item.id !== itemId)
@@ -149,13 +150,13 @@ export default function Inventory() {
     }
   };
 
-  const handleClickItem = (item: DocumentData) => {
+  const handleClickItem = (item: InventoryItemDTO) => {
     setModalMode("edit");
     setItemToEdit(item.id);
     if (item.expiration) {
       setSelectedItemData({
         name: item.name,
-        expiration: item.expiration.toDate(),
+        expiration: item.expiration,
       });
     } else {
       setSelectedItemData({ name: item.name, expiration: null });
@@ -163,7 +164,7 @@ export default function Inventory() {
     setShowModal(true);
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const queryInputValue = event.target.value.trim().toLowerCase();
 
     if (queryInputValue) {
@@ -175,21 +176,14 @@ export default function Inventory() {
         where("lowercaseName", "<=", queryInputValue + "\uf8ff"),
       );
 
-      onSnapshot(
-        searchRef,
-        (querySnapshot: QuerySnapshot<DocumentData>) => {
-          const results: DocumentData[] = [];
-          querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-            const result = { id: doc.id, ...doc.data() };
-            results.push(result);
-          });
-          const sortedResults = results.sort((a, b) => a.order - b.order);
-          setSearchResults(sortedResults);
-        },
-        (error) => {
-          console.error("Error searching inventory:", error);
-        }
-      );
+      try {
+        const querySnapshot = await getDocs(searchRef);
+        const results = querySnapshot.docs.map(firestoreDocToInventoryItemDTO);
+        const sortedResults = results.sort((a, b) => a.order - b.order);
+        setSearchResults(sortedResults);
+      } catch (error) {
+        console.error("Error searching inventory:", error);
+      }
     } else {
       setIsSearching(false);
       setSearchResults([]);
@@ -227,19 +221,15 @@ export default function Inventory() {
     }
   };
 
-  const InventoryListProps = {
-    items: isSearching ? searchResults : inventory,
-    onClickItem: handleClickItem,
-    onDeleteItem: handleDeleteItem,
-    onMoveItem: handleMoveItem,
-    isDndEnabled: !isSearching,
-  };
-
   useEffect(() => {
+    if (!user?.uid) {
+      return;
+    }
+
     const inventoryRef = query(
       collection(firestore, "inventory"),
       orderBy("order"),
-      where("userId", "==", user?.uid)
+      where("userId", "==", user.uid)
     );
 
     setLoading(true);
@@ -247,11 +237,7 @@ export default function Inventory() {
     const unsubscribe = onSnapshot(
       inventoryRef,
       (querySnapshot: QuerySnapshot<DocumentData>) => {
-        const items: DocumentData[] = [];
-        querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-          const item = { id: doc.id, ...doc.data() };
-          items.push(item);
-        });
+        const items = querySnapshot.docs.map(doc => firestoreDocToInventoryItemDTO(doc));
         setInventory(items);
         const currentMaxOrder =
           items.length > 0 ? items[items.length - 1].order : 0;
@@ -301,7 +287,13 @@ export default function Inventory() {
       ) : inventory.length === 0 ? (
         <p>No items in your inventory.</p>
       ) : (
-        <InventoryList {...InventoryListProps} />
+        <InventoryList
+          items={isSearching ? searchResults : inventory}
+          onClickItem={handleClickItem}
+          onDeleteItem={handleDeleteItem}
+          onMoveItem={handleMoveItem}
+          isDndEnabled={!isSearching}
+        />
       )}
     </StyledDiv>
   );

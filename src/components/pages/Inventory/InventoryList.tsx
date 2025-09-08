@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { DocumentData } from "firebase/firestore";
 import {
   DragDropContext,
   Draggable,
@@ -9,6 +8,7 @@ import {
   DroppableProvided,
 } from "@hello-pangea/dnd";
 import deleteIcon from "assets/icons/button-delete-item.svg";
+import { InventoryItemDTO } from "./InventoryItem";
 
 const URGENT_THRESHOLD_DAYS = 3;
 
@@ -58,12 +58,20 @@ const ItemNameSpan = styled.span`
 `;
 
 interface InventoryListProps {
-  items: DocumentData[];
-  onDeleteItem: (itemId: string | undefined) => void;
-  onClickItem: (item: DocumentData) => void;
+  items: InventoryItemDTO[];
+  onDeleteItem: (itemId: string) => void;
+  onClickItem: (item: InventoryItemDTO) => void;
   onMoveItem: (itemId: string, source: number, destination: number) => void;
   isDndEnabled: boolean;
 }
+
+const isUrgent = (expirationDate: Date): boolean => {
+  const today = new Date();
+  const differenceInDays = Math.floor(
+    (expirationDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000)
+  );
+  return differenceInDays < URGENT_THRESHOLD_DAYS;
+};
 
 export default function InventoryList({
   items,
@@ -72,17 +80,10 @@ export default function InventoryList({
   onMoveItem,
   isDndEnabled,
 }: InventoryListProps) {
-  const isUrgent = (expirationDate: Date): boolean => {
-    const today = new Date();
-    const differenceInDays = Math.floor(
-      (expirationDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000)
-    );
-    return differenceInDays < URGENT_THRESHOLD_DAYS;
-  };
 
-  const onDragEnd = async (result: DropResult) => {
+  const onDragEnd = (result: DropResult) => {
     if (result.destination) {
-      await onMoveItem(
+      onMoveItem(
         result.draggableId,
         result.source.index,
         result.destination.index
@@ -102,7 +103,6 @@ export default function InventoryList({
                     ref={dragProvided.innerRef}
                     {...dragProvided.draggableProps}
                     {...dragProvided.dragHandleProps}
-                    key={item.id}
                     onClick={() => onClickItem(item)}
                   >
                     <DeleteItemButton
@@ -116,9 +116,9 @@ export default function InventoryList({
                     <ItemNameSpan>{item.name}</ItemNameSpan>
                     {item.expiration && (
                       <ItemExpirationSpan
-                        $urgent={isUrgent(item.expiration.toDate())}
+                        $urgent={isUrgent(item.expiration)}
                       >
-                        {item.expiration.toDate().toISOString().slice(0, 10)}
+                        {item.expiration.toISOString().slice(0, 10)}
                       </ItemExpirationSpan>
                     )}
                   </StyledListItem>
@@ -144,8 +144,8 @@ export default function InventoryList({
           />
           <ItemNameSpan>{item.name}</ItemNameSpan>
           {item.expiration && (
-            <ItemExpirationSpan $urgent={isUrgent(item.expiration.toDate())}>
-              {item.expiration.toDate().toISOString().slice(0, 10)}
+            <ItemExpirationSpan $urgent={isUrgent(item.expiration)}>
+              {item.expiration.toISOString().slice(0, 10)}
             </ItemExpirationSpan>
           )}
         </StyledListItem>

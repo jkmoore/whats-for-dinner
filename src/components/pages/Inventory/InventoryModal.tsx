@@ -55,6 +55,12 @@ const StyledButton = styled.button<{ type: "button" | "submit" }>`
       `}
 `;
 
+const DateInput = styled.input`
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
+`;
+
 interface ModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onSubmitItem: (item: InventoryItem) => void;
@@ -62,7 +68,7 @@ interface ModalProps {
   mode: "add" | "edit";
 }
 
-export default function Modal({
+export default function InventoryModal({
   setIsOpen,
   onSubmitItem,
   defaultData,
@@ -75,21 +81,15 @@ export default function Modal({
 
   useEffect(() => {
     if (defaultData) {
-      if (defaultData.expiration) {
-        setNewItem({
-          name: defaultData.name,
-          expiration: defaultData.expiration,
-        });
-      } else {
-        setNewItem({ name: defaultData.name, expiration: null });
-      }
+      setNewItem({
+        name: defaultData.name,
+        expiration: defaultData.expiration ?? null,
+      });
     }
   }, [defaultData]);
 
-  const handleSubmitItem = (
-    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    onSubmitItem: (item: InventoryItem) => void
-  ) => {
+  const handleSubmitItem = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     onSubmitItem(newItem);
     setIsOpen(false);
   };
@@ -99,12 +99,7 @@ export default function Modal({
       <Background onClick={() => setIsOpen(false)} />
       <ModalWindow>
         <h2>{mode === "add" ? "New Item" : "Edit Item"}</h2>
-        <StyledForm
-          onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            handleSubmitItem(setIsOpen, onSubmitItem);
-          }}
-        >
+        <StyledForm onSubmit={handleSubmitItem}>
           <label htmlFor="item">Item</label>
           <input
             type="text"
@@ -118,8 +113,7 @@ export default function Modal({
             }
           />
           <label htmlFor="expiration">Expiration Date</label>
-          <style>{`input::-webkit-calendar-picker-indicator { cursor: pointer; }`}</style>
-          <input
+          <DateInput
             type="date"
             id="expiration"
             min={"1900-01-01"}
