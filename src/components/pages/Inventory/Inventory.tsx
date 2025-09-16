@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import {
   DocumentData,
   QuerySnapshot,
@@ -21,76 +20,25 @@ import InventoryModal from "./InventoryModal";
 import InventoryItem, { InventoryItemDTO } from "./InventoryItem";
 import addIcon from "assets/icons/button-add-item.svg";
 import { firestoreDocToInventoryItemDTO } from "utils/firestoreConverters";
-
-const StyledHeader = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0rem;
-  margin: 0.5rem 0;
-  height: 2.5rem;
-`;
-
-const SearchBar = styled.input`
-  padding: 0.625rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  outline: none;
-  width: 100%;
-  margin-left: 0.5rem;
-  box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
-  font-size: 1rem;
-
-  ::placeholder {
-    color: #ccc;
-  }
-
-  &:focus {
-    outline: 0.1rem solid #ccc;
-  }
-`;
-
-const AddItemButton = styled.img`
-  height: 2rem;
-  width: 2rem;
-  cursor: pointer;
-  border-radius: 50%;
-  box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
-  &:hover {
-    filter: brightness(95%);
-  }
-`;
-
-const StyledDiv = styled.div`
-  padding: 2rem 3rem;
-
-  ${({ theme }) => theme.breakpoints.down('sm')} {
-    padding: 1rem;
-    font-size: 0.9rem;
-  }
-
-  ${({ theme }) => theme.breakpoints.up('xl')} {
-    padding-left: 8rem;
-    padding-right: 8rem;
-  }
-
-  ${({ theme }) => theme.breakpoints.up('xxl')} {
-    padding-left: 15rem;
-    padding-right: 15rem;
-  }
-`;
+import {
+  AddItemButton,
+  SearchBar,
+  StyledDiv,
+  StyledHeader
+} from "styles/ItemList.styles";
 
 type ModalMode = "add" | "edit";
 
 export default function Inventory() {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [maxOrder, setMaxOrder] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [maxOrder, setMaxOrder] = useState(0);
   const [inventory, setInventory] = useState<InventoryItemDTO[]>([]);
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>("add");
   const [itemToEdit, setItemToEdit] = useState<string | null>(null);
   const [selectedItemData, setSelectedItemData] = useState<InventoryItem | null>(null);
   const [searchResults, setSearchResults] = useState<InventoryItemDTO[]>([]);
-  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const user: User | null = auth.currentUser;
 

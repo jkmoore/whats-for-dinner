@@ -11,12 +11,14 @@ import {
   StyledForm,
   ErrorMessage,
   StyledTextCenter
-} from "components/common/StyledAuthForm";
+} from "styles/AuthForm.styles";
+import { FirebaseAuthError } from "types/firebase";
+import { ERROR_MESSAGES, UNKNOWN_ERROR_MESSAGE } from "constants/authErrors";
 import logo from "assets/images/logo-navbar.svg";
 
-interface FirebaseAuthError extends Error {
-  code: string;
-}
+const componentSpecificErrors: Record<string, string> = {
+  "auth/too-many-requests": "Login is temporarily disabled due to repeated failed attempts with incorrect or unverified credentials. Please wait a few minutes and try again. If you aren't verified, check your email for a verification link.",
+};
 
 export default function Login() {
   const navigate = useNavigate();
@@ -44,27 +46,15 @@ export default function Login() {
         setErrorMessage("Your account is not yet verified. Not to worry! We've sent you a new verification email. If you don't see it in your inbox within a few minutes, click Login again to resend.");
       }
     }
-      catch (error: unknown) {
+    catch (error: unknown) {
       const authError = error as FirebaseAuthError;
-      const errorCode = authError?.code;
       console.error(authError);
-      switch (errorCode) {
-        case "auth/invalid-email":
-          setErrorMessage("Please enter a valid email address.");
-          break;
-        case "auth/missing-password":
-          setErrorMessage("Please enter a password.");
-          break;
-        case "auth/invalid-login-credentials":
-          setErrorMessage("Invalid login credentials.");
-          break;
-        case "auth/too-many-requests":
-          setErrorMessage("Login is temporarily disabled due to repeated failed attempts with incorrect or unverified credentials. Please wait a few minutes and try again. If you aren't verified, check your email for a verification link.");
-          break;
-        default:
-          setErrorMessage("An unknown error occurred. Please wait a moment and try again.");
-          break;
-      }
+      const errorCode = authError?.code;
+      const message =
+        componentSpecificErrors[errorCode] ||
+        ERROR_MESSAGES[errorCode] ||
+        UNKNOWN_ERROR_MESSAGE;
+      setErrorMessage(message);
     }
   };
 
@@ -80,7 +70,7 @@ export default function Login() {
             required
             placeholder="Email address"
             autoComplete="email"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
           />
           <StyledInput
             id="password"
@@ -89,7 +79,7 @@ export default function Login() {
             required
             placeholder="Password"
             autoComplete="current-password"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
           />
           <SubmitButton type="submit">Login</SubmitButton>
         </StyledForm>

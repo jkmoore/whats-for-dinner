@@ -38,19 +38,19 @@ interface RecipeDetailsProps {
 
 export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
   const [recipeId, setRecipeId] = useState<string | null>(id);
-  const [editMode, setEditMode] = useState<boolean>(false);
-  const [recipeName, setRecipeName] = useState<string>("");
+  const [editMode, setEditMode] = useState(false);
+  const [recipeName, setRecipeName] = useState("");
   const [recipeType, setRecipeType] = useState<RecipeType | null>(null);
   const [recipeTime, setRecipeTime] = useState<number | null>(null);
-  const [notes, setNotes] = useState<string>("");
+  const [notes, setNotes] = useState("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [preEditIngredients, setPreEditIngredients] = useState<{
     [id: string]: Ingredient;
   }>({});
-  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
-  const [loadingBasicInfo, setLoadingBasicInfo] = useState<boolean>(false);
-  const [loadingIngredients, setLoadingIngredients] = useState<boolean>(false);
-  const [saving, setSaving] = useState<boolean>(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [loadingBasicInfo, setLoadingBasicInfo] = useState(false);
+  const [loadingIngredients, setLoadingIngredients] = useState(false);
+  const [saving, setSaving] = useState(false);
   const user: User | null = auth.currentUser;
 
   useEffect(() => {
@@ -250,15 +250,15 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
   const handleDeleteRecipe = async () => {
     if (!recipeId) {
       setIsOpen(false);
-    } else {
-      try {
-        const recipeRef = doc(collection(firestore, "recipes"), recipeId);
-        await deleteDoc(recipeRef);
-        await deleteIngredientsByRecipe(recipeId);
-        setIsOpen(false);
-      } catch (error) {
-        console.error("Error deleting recipe:", error);
-      }
+      return;
+    }
+    try {
+      const recipeRef = doc(collection(firestore, "recipes"), recipeId);
+      await deleteDoc(recipeRef);
+      await deleteIngredientsByRecipe(recipeId);
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
     }
   };
 
@@ -270,9 +270,9 @@ export default function RecipeDetails({ setIsOpen, id }: RecipeDetailsProps) {
         const ingredientsRef = collection(firestore, "ingredients");
         const q = query(ingredientsRef, where("recipeId", "==", recipeId));
         const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          await deleteDoc(doc.ref);
-        });
+        await Promise.all(
+          querySnapshot.docs.map((doc) => deleteDoc(doc.ref))
+        );
       } catch (error) {
         console.error("Error deleting ingredients:", error);
       }

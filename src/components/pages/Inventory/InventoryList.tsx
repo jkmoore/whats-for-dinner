@@ -9,52 +9,18 @@ import {
 } from "@hello-pangea/dnd";
 import deleteIcon from "assets/icons/button-delete-item.svg";
 import { InventoryItemDTO } from "./InventoryItem";
+import {
+  DeleteItemButton,
+  ItemNameSpan,
+  StyledList,
+  StyledListItem
+} from "styles/ItemList.styles";
 
 const URGENT_THRESHOLD_DAYS = 3;
-
-const StyledList = styled.ul`
-  padding: 0rem;
-`;
-
-const StyledListItem = styled.li`
-  background-color: #fafafa;
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  margin: 0.5rem 0;
-  box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
-  list-style-type: none;
-  cursor: pointer;
-  margin-top: 0rem;
-  height: 3rem;
-  box-sizing: border-box;
-`;
-
-const DeleteItemButton = styled.img`
-  cursor: pointer;
-  border: none;
-  height: 1.2rem;
-  width: 1.2rem;
-  margin-right: 0.5rem;
-  opacity: 0.3;
-  border-radius: 50%;
-  &:hover {
-    opacity: 0.7;
-    background-color: #ccc;
-  }
-`;
 
 const ItemExpirationSpan = styled.span<{ $urgent?: boolean }>`
   margin: 0 1rem;
   color: ${(props) => (props.$urgent ? "crimson" : "inherit")};
-`;
-
-const ItemNameSpan = styled.span`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 `;
 
 interface InventoryListProps {
@@ -115,9 +81,7 @@ export default function InventoryList({
                     />
                     <ItemNameSpan>{item.name}</ItemNameSpan>
                     {item.expiration && (
-                      <ItemExpirationSpan
-                        $urgent={isUrgent(item.expiration)}
-                      >
+                      <ItemExpirationSpan $urgent={isUrgent(item.expiration)}>
                         {item.expiration.toISOString().slice(0, 10)}
                       </ItemExpirationSpan>
                     )}

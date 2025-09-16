@@ -18,7 +18,7 @@ const Container = styled.div`
   padding-bottom: 5rem;
 `;
 
-const IngredientsContainer = styled.div`
+const SectionContainer = styled.div`
   padding: 2rem;
   width: 50%;
   ${({ theme }) => theme.breakpoints.down("md")} {
@@ -37,7 +37,7 @@ const IngredientsContainer = styled.div`
 
 const IngredientsList = styled.ul`
   overflow-y: auto;
-  margin: 0rem;
+  margin: 0;
 `;
 
 const IngredientsEditorContainer = styled.div`
@@ -71,23 +71,6 @@ const DeleteIngredientButton = styled.img`
 const StyledIngredientInput = styled.input`
   flex: 1 1 auto;
   min-width: 5rem;
-`;
-
-const NotesContainer = styled.div`
-  padding: 2rem;
-  width: 50%;
-  ${({ theme }) => theme.breakpoints.down("md")} {
-    padding: 1rem;
-  }
-  ${({ theme }) => theme.breakpoints.down("sm")} {
-    width: 100%;
-    height: 50%;
-  }
-  height: 100%;
-  overflow-wrap: break-word;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
 `;
 
 const NotesText = styled.p`
@@ -124,100 +107,79 @@ export default function RecipeContents({
   ingredients,
   setIngredients,
 }: RecipeContentsProps) {
+  const handleIngredientChange = (id: string, field: "name" | "quantity", value: string) => {
+    setIngredients(prev =>
+      prev.map(ingredient =>
+        ingredient.id === id ? { ...ingredient, [field]: value } : ingredient
+      )
+    );
+  };
+
+  const handleDeleteIngredient = (id: string) => {
+    setIngredients(prev => prev.filter(ingredient => ingredient.id !== id));
+  };
+
+  const handleAddIngredient = () => {
+    setIngredients(prev => [...prev, { id: uuidv4(), name: "", quantity: "" }]);
+  };
+
   return (
-    <>
-      {editMode ? (
-        <Container>
-          <IngredientsContainer>
-            <ContentsHeader>Ingredients</ContentsHeader>
-            <IngredientsEditorContainer>
-              {ingredients.map((ingredient: Ingredient, index: number) => (
-                <IngredientEditorContainer key={index}>
-                  <StyledIngredientInput
-                    value={ingredient.name}
-                    placeholder={"Ingredient name"}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const newIngredients = [...ingredients];
-                      newIngredients[index].name = e.target.value;
-                      setIngredients(newIngredients);
-                    }}
-                    maxLength={50}
-                  />
-                  <StyledIngredientInput
-                    value={ingredient.quantity}
-                    placeholder={"Quantity"}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const newIngredients = [...ingredients];
-                      newIngredients[index].quantity = e.target.value;
-                      setIngredients(newIngredients);
-                    }}
-                    maxLength={50}
-                  />
-                  <DeleteIngredientButton
-                    src={deleteIcon}
-                    alt="Delete ingredient"
-                    onClick={() =>
-                      setIngredients(ingredients.filter((_, i) => i !== index))
-                    }
-                  />
-                </IngredientEditorContainer>
-              ))}
-              <button
-                onClick={() =>
-                  setIngredients([
-                    ...ingredients,
-                    {
-                      id: uuidv4(),
-                      name: "",
-                      quantity: "",
-                    },
-                  ])
-                }
-              >
-                + Add ingredient
-              </button>
-            </IngredientsEditorContainer>
-          </IngredientsContainer>
-          <NotesContainer>
-            <ContentsHeader>Notes</ContentsHeader>
-            <NotesTextArea
-              placeholder={"Add your notes (steps, tips, etc.)"}
-              value={notes}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setNotes(e.target.value)
-              }
-            />
-          </NotesContainer>
-        </Container>
-      ) : (
-        <Container>
-          <IngredientsContainer>
-            <ContentsHeader>Ingredients</ContentsHeader>
-            {loadingIngredients ? (
-              <p>Loading...</p>
-            ) : (
-              <IngredientsList>
-                {ingredients.map((ingredient: Ingredient, index: number) => (
-                  <li key={index}>
-                    {ingredient.name.length > 0
-                      ? ingredient.name
-                      : "New ingredient"}
-                    {ingredient.quantity && " - " + ingredient.quantity}
-                  </li>
-                ))}
-              </IngredientsList>
-            )}
-          </IngredientsContainer>
-          <NotesContainer>
-            <ContentsHeader>Notes</ContentsHeader>
-            {loadingBasicInfo ? (
-              <p>Loading...</p>
-            ) : (
-              <NotesText>{notes}</NotesText>
-            )}
-          </NotesContainer>
-        </Container>
-      )}
-    </>
+    <Container>
+      <SectionContainer>
+        <ContentsHeader>Ingredients</ContentsHeader>
+        {editMode ? (
+          <IngredientsEditorContainer>
+            {ingredients.map(ingredient => (
+              <IngredientEditorContainer key={ingredient.id}>
+                <StyledIngredientInput
+                  value={ingredient.name}
+                  placeholder="Ingredient name"
+                  onChange={e => handleIngredientChange(ingredient.id, "name", e.target.value)}
+                  maxLength={50}
+                />
+                <StyledIngredientInput
+                  value={ingredient.quantity}
+                  placeholder="Quantity"
+                  onChange={e => handleIngredientChange(ingredient.id, "quantity", e.target.value)}
+                  maxLength={50}
+                />
+                <DeleteIngredientButton
+                  src={deleteIcon}
+                  alt="Delete ingredient"
+                  onClick={() => handleDeleteIngredient(ingredient.id)}
+                />
+              </IngredientEditorContainer>
+            ))}
+            <button onClick={handleAddIngredient}>+ Add ingredient</button>
+          </IngredientsEditorContainer>
+        ) : loadingIngredients ? (
+          <p>Loading...</p>
+        ) : (
+          <IngredientsList>
+            {ingredients.map(ingredient => (
+              <li key={ingredient.id}>
+                {ingredient.name || "New ingredient"}
+                {ingredient.quantity && ` - ${ingredient.quantity}`}
+              </li>
+            ))}
+          </IngredientsList>
+        )}
+      </SectionContainer>
+
+      <SectionContainer>
+        <ContentsHeader>Notes</ContentsHeader>
+        {editMode ? (
+          <NotesTextArea
+            placeholder="Add your notes (steps, tips, etc.)"
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+          />
+        ) : loadingBasicInfo ? (
+          <p>Loading...</p>
+        ) : (
+          <NotesText>{notes}</NotesText>
+        )}
+      </SectionContainer>
+    </Container>
   );
 }

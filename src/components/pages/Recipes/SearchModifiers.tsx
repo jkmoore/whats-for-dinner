@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { RecipeTime, RecipeType, SearchMode } from "./SearchModifierTypes";
-
-type Position = "left" | "right";
+import ButtonGroup from "./ButtonGroup";
 
 const Container = styled.div`
   display: flex;
@@ -10,28 +9,6 @@ const Container = styled.div`
   margin-top: 1rem;
   width: 100%;
   gap: 1rem;
-`;
-
-const StyledButton = styled.button<{
-  $selected: boolean;
-  $position?: Position;
-}>`
-  background-color: ${(props) => (props.$selected ? "#ccc" : "initial")};
-  height: 1.5rem;
-  border: 1px solid #ccc;
-  ${(props) =>
-    props.$position === "left" &&
-    `
-    border-radius: 0.5rem 0 0 0.5rem;
-  `}
-  ${(props) =>
-    props.$position === "right" &&
-    `
-    border-radius: 0 0.5rem 0.5rem 0;
-  `}
-  ${({ theme }) => theme.breakpoints.down("sm")} {
-    font-size: 0.8rem;
-  }
 `;
 
 interface SearchModifiersProps {
@@ -43,87 +20,48 @@ interface SearchModifiersProps {
   onSelectTimeFilter: (time: RecipeTime) => void;
 }
 
-export default function SearchModifiers({
-  searchMode,
-  onSetSearchMode,
-  selectedTypes,
-  onSelectTypeFilter,
-  selectedTime,
-  onSelectTimeFilter,
-}: SearchModifiersProps) {
+const searchModes = [
+  { label: "Search by recipe name", value: "recipes" as SearchMode },
+  { label: "Search by ingredient", value: "ingredients" as SearchMode },
+];
+
+const recipeTypes = [
+  { label: "Main", value: "main" as RecipeType },
+  { label: "Side", value: "side" as RecipeType },
+  { label: "Dessert", value: "dessert" as RecipeType },
+  { label: "Beverage", value: "beverage" as RecipeType },
+];
+
+const recipeTimes = [
+  { label: "≤15 min", value: "15" as RecipeTime },
+  { label: "≤30 min", value: "30" as RecipeTime },
+  { label: "≤45 min", value: "45" as RecipeTime },
+  { label: "≤60 min", value: "60" as RecipeTime },
+];
+
+export default function SearchModifiers(props: SearchModifiersProps) {
   return (
     <Container>
       <div>
-        <StyledButton
-          onClick={() => onSetSearchMode("recipes")}
-          $selected={searchMode === "recipes"}
-          $position="left"
-        >
-          Search by recipe name
-        </StyledButton>
-        <StyledButton
-          onClick={() => onSetSearchMode("ingredients")}
-          $selected={searchMode === "ingredients"}
-          $position="right"
-        >
-          Search by ingredient
-        </StyledButton>
+        <ButtonGroup
+          items={searchModes}
+          selectedValues={props.searchMode}
+          onSelect={props.onSetSearchMode}
+        />
       </div>
       <div>
-        <StyledButton
-          onClick={() => onSelectTypeFilter("main")}
-          $selected={selectedTypes.includes("main")}
-          $position="left"
-        >
-          Main
-        </StyledButton>
-        <StyledButton
-          onClick={() => onSelectTypeFilter("side")}
-          $selected={selectedTypes.includes("side")}
-        >
-          Side
-        </StyledButton>
-        <StyledButton
-          onClick={() => onSelectTypeFilter("dessert")}
-          $selected={selectedTypes.includes("dessert")}
-        >
-          Dessert
-        </StyledButton>
-        <StyledButton
-          onClick={() => onSelectTypeFilter("beverage")}
-          $selected={selectedTypes.includes("beverage")}
-          $position="right"
-        >
-          Beverage
-        </StyledButton>
+        <ButtonGroup
+          items={recipeTypes}
+          selectedValues={props.selectedTypes}
+          onSelect={props.onSelectTypeFilter}
+        />
       </div>
       <div>
-        <StyledButton
-          onClick={() => onSelectTimeFilter("15")}
-          $selected={selectedTime === "15"}
-          $position="left"
-        >
-          {"≤15 min"}
-        </StyledButton>
-        <StyledButton
-          onClick={() => onSelectTimeFilter("30")}
-          $selected={selectedTime === "30"}
-        >
-          {"≤30 min"}
-        </StyledButton>
-        <StyledButton
-          onClick={() => onSelectTimeFilter("45")}
-          $selected={selectedTime === "45"}
-        >
-          {"≤45 min"}
-        </StyledButton>
-        <StyledButton
-          onClick={() => onSelectTimeFilter("60")}
-          $selected={selectedTime === "60"}
-          $position="right"
-        >
-          {"≤60 min"}
-        </StyledButton>
+        <ButtonGroup
+          items={recipeTimes}
+          selectedValues={props.selectedTime}
+          onSelect={props.onSelectTimeFilter}
+        />
       </div>
     </Container>
   );

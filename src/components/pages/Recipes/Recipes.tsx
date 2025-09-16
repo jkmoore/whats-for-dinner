@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { User } from "firebase/auth";
 import {
@@ -101,15 +101,13 @@ const RecipesListContainer = styled.ul`
 
 const RecipeContainer = styled.div`
   padding: 0.75rem;
-  border: solid 1px #ccc;
+  border: 1px solid #ccc;
   cursor: pointer;
   border-radius: 0.5rem;
   box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
   background-color: #fafafa;
   display: flex;
   align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
   margin-bottom: 0.5rem;
   gap: 0.5rem;
   height: 3rem;
@@ -159,14 +157,14 @@ const RecipeSubtext = styled.span`
 `;
 
 export default function Recipes() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<Recipe[]>([]);
   const [searchMode, setSearchMode] = useState<SearchMode>("recipes");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [showRecipe, setShowRecipe] = useState<boolean>(false);
+  const [showRecipe, setShowRecipe] = useState(false);
   const [idOfRecipeToOpen, setIdOfRecipeToOpen] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchedIngredients, setSearchedIngredients] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<RecipeType[]>([]);
   const [selectedTime, setSelectedTime] = useState<RecipeTime | null>(null);
@@ -292,7 +290,7 @@ export default function Recipes() {
     }
   }, [searchByIngredients, searchMode, searchedIngredients]);
 
-  const searchByRecipe = (queryInputValue: string) => {
+  const searchByRecipe = async (queryInputValue: string) => {
     setLoading(true);
     const searchRef = query(
       collection(firestore, "recipes"),
@@ -301,31 +299,25 @@ export default function Recipes() {
       where("lowercaseName", "<=", queryInputValue + "\uf8ff")
     );
 
-    onSnapshot(
-      searchRef,
-      (querySnapshot: QuerySnapshot<DocumentData>) => {
-        const results: Recipe[] = [];
-        querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-          const data = doc.data();
-          const recipe = {
-            id: doc.id,
-            name: data.name,
-            type: data.type,
-            time: data.time,
-          };
-          results.push(recipe);
+    try {
+      const querySnapshot = await getDocs(searchRef);
+      const results: Recipe[] = [];
+      querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+        const data = doc.data();
+        results.push({
+          id: doc.id,
+          name: data.name,
+          type: data.type,
+          time: data.time,
         });
-        const sortedResults = results.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        setSearchResults(sortedResults);
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error searching recipes:", error);
-        setLoading(false);
-      }
-    );
+      });
+      const sortedResults = results.sort((a, b) => a.name.localeCompare(b.name));
+      setSearchResults(sortedResults);
+    } catch (error) {
+      console.error("Error searching recipes:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -394,29 +386,26 @@ export default function Recipes() {
     }
   };
 
-  const filteredRecipes = recipes
-    .filter(
-      (recipe) =>
-        !selectedTypes.length ||
-        !recipe.type ||
-        selectedTypes.includes(recipe.type)
-    )
-    .filter(
-      (recipe) =>
-        !selectedTime || !recipe.time || recipe.time <= parseInt(selectedTime)
-    );
+  function filterRecipes(
+    recipes: Recipe[],
+    selectedTypes: RecipeType[],
+    selectedTime: RecipeTime | null
+  ): Recipe[] {
+    return recipes.filter((recipe) => {
+      const typeMatch = !selectedTypes.length || !recipe.type || selectedTypes.includes(recipe.type);
+      const timeMatch = !selectedTime || !recipe.time || recipe.time <= parseInt(selectedTime);
+      return typeMatch && timeMatch;
+    });
+  }
 
-  const filteredSearchResults = searchResults
-    .filter(
-      (recipe) =>
-        !selectedTypes.length ||
-        !recipe.type ||
-        selectedTypes.includes(recipe.type)
-    )
-    .filter(
-      (recipe) =>
-        !selectedTime || !recipe.time || recipe.time <= parseInt(selectedTime)
-    );
+  const filteredRecipes = useMemo(() =>
+    filterRecipes(recipes, selectedTypes, selectedTime),
+    [recipes, selectedTypes, selectedTime]
+  );
+  const filteredSearchResults = useMemo(() =>
+    filterRecipes(searchResults, selectedTypes, selectedTime),
+    [searchResults, selectedTypes, selectedTime]
+  );
 
   return (
     <>
@@ -480,7 +469,7 @@ export default function Recipes() {
             ) : isSearching && searchResults.length > 0 ? (
               filteredSearchResults.map((recipe, index) => (
                 <RecipeContainer
-                  key={index}
+                  key={recipe.id}
                   onClick={() => {
                     setIdOfRecipeToOpen(recipe.id);
                     setShowRecipe(true);
@@ -497,7 +486,7 @@ export default function Recipes() {
             ) : (
               filteredRecipes.map((recipe, index) => (
                 <RecipeContainer
-                  key={index}
+                  key={recipe.id}
                   onClick={() => {
                     setIdOfRecipeToOpen(recipe.id);
                     setShowRecipe(true);

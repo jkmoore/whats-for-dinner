@@ -3,9 +3,9 @@ import TextareaAutosize from "react-textarea-autosize";
 import styled from "styled-components";
 import {
   Draggable,
-  DraggableProvided,
   Droppable,
-  DroppableProvided,
+  DraggableProvided,
+  DroppableProvided
 } from "@hello-pangea/dnd";
 import MealPlanItem from "./MealPlanItem";
 import deleteIcon from "assets/icons/button-delete-meal.svg";
@@ -43,10 +43,9 @@ const Meal = styled.div`
   padding-top: 0.5rem;
   box-sizing: border-box;
   position: relative;
-  &:hover {
-    img {
-      display: flex;
-    }
+
+  &:hover img {
+    display: flex;
   }
 `;
 
@@ -70,7 +69,7 @@ const DeleteMealButton = styled.img`
   cursor: pointer;
   border-radius: 50%;
   background-color: lightgrey;
-  border: solid 0.5px grey;
+  border: 0.5px solid grey;
   display: none;
 `;
 
@@ -98,7 +97,7 @@ const TextContainer = styled.div`
 `;
 
 const DragHandle = styled.div`
-  border: solid 0.5px grey;
+  border: 0.5px solid grey;
   border-top-left-radius: 0.2rem;
   border-bottom-left-radius: 0.2rem;
   width: 10%;
@@ -107,6 +106,7 @@ const DragHandle = styled.div`
   align-items: center;
   background-color: lightgrey;
 `;
+
 interface MealPlanDayProps {
   date: string;
   meals: MealPlanItem[];
@@ -126,8 +126,9 @@ export default function MealPlanDay({
 }: MealPlanDayProps) {
   const newMealInputRef = useRef<HTMLTextAreaElement>(null);
   const [currentMeals, setCurrentMeals] = useState<MealPlanItem[]>([]);
-  const [newMealName, setNewMealName] = useState<string>("");
-  const [addingMeal, setAddingMeal] = useState<boolean>(false);
+  const [newMealName, setNewMealName] = useState("");
+  const [addingMeal, setAddingMeal] = useState(false);
+
   const formatLocaleDateString = (localeDateString: string): string => {
     const date = new Date(localeDateString);
     const options: Intl.DateTimeFormatOptions = {
@@ -136,7 +137,6 @@ export default function MealPlanDay({
     };
     const formattedDate = date.toLocaleDateString("en-US", options);
     const dayOfWeek = date.toLocaleDateString("en-US", { weekday: "short" });
-
     return `${formattedDate} (${dayOfWeek})`;
   };
 
@@ -148,11 +148,7 @@ export default function MealPlanDay({
 
   useEffect(() => {
     if (meals) {
-      const copiedMeals = meals.map((meal) => {
-        return {
-          ...meal,
-        };
-      });
+      const copiedMeals = meals.map((meal) => ({ ...meal }));
       setCurrentMeals(copiedMeals);
     } else {
       setCurrentMeals([]);
@@ -165,18 +161,18 @@ export default function MealPlanDay({
     }
   }, [addingMeal]);
 
-  const saveNewMealName = async () => {
-    setAddingMeal(false);
-    if (newMealName.trim().length > 0) {
-      await onAddItem(newMealName, date);
-    }
-    setNewMealName("");
-  };
-
-  const handleUpdatedMealNameInput = (index: number, name: string) => {
+  const handleMealNameChange = (index: number, name: string) => {
     const updatedMeals = [...currentMeals];
     updatedMeals[index].name = name;
     setCurrentMeals(updatedMeals);
+  };
+
+  const saveNewMeal = async () => {
+    setAddingMeal(false);
+    if (newMealName.trim()) {
+      await onAddItem(newMealName, date);
+    }
+    setNewMealName("");
   };
 
   const saveUpdatedMealName = async (index: number, name: string) => {
@@ -195,64 +191,50 @@ export default function MealPlanDay({
       <DateHeader>{formatLocaleDateString(date)}</DateHeader>
       <Droppable droppableId={date}>
         {(provided: DroppableProvided) => (
-          <MealsContainer {...provided.droppableProps} ref={provided.innerRef}>
-            {currentMeals &&
-              currentMeals.map((meal, index) => (
-                <Draggable key={meal.id} draggableId={meal.id} index={index}>
-                  {(dragProvided: DraggableProvided) => (
-                    <Meal
-                      onMouseDown={() => setAddingMeal(false)}
-                      key={meal.id}
-                      ref={dragProvided.innerRef}
-                      {...dragProvided.draggableProps}
-                    >
-                      <DeleteMealButton
-                        src={deleteIcon}
-                        alt="Remove Meal"
-                        onClick={() => onDeleteItem(meal.id, date)}
+          <MealsContainer ref={provided.innerRef} {...provided.droppableProps}>
+            {currentMeals.map((meal, index) => (
+              <Draggable key={meal.id} draggableId={meal.id} index={index}>
+                {(dragProvided: DraggableProvided) => (
+                  <Meal
+                    ref={dragProvided.innerRef}
+                    {...dragProvided.draggableProps}
+                    onMouseDown={() => setAddingMeal(false)}
+                  >
+                    <DeleteMealButton
+                      src={deleteIcon}
+                      alt="Remove Meal"
+                      onClick={() => onDeleteItem(meal.id, date)}
+                    />
+                    <TextContainer>
+                      <DragHandle {...dragProvided.dragHandleProps} />
+                      <StyledTextArea
+                        spellCheck={false}
+                        maxRows={8}
+                        value={currentMeals[index].name}
+                        onChange={(e) => handleMealNameChange(index, e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                        onBlur={(e) => saveUpdatedMealName(index, e.target.value)}
                       />
-                      <TextContainer>
-                        <DragHandle
-                          {...dragProvided.dragHandleProps}
-                        ></DragHandle>
-                        <StyledTextArea
-                          spellCheck={false}
-                          maxRows={8}
-                          value={currentMeals[index].name}
-                          onChange={(
-                            e: React.ChangeEvent<HTMLTextAreaElement>
-                          ) =>
-                            handleUpdatedMealNameInput(index, e.target.value)
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") e.currentTarget.blur();
-                          }}
-                          onBlur={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                            saveUpdatedMealName(index, e.target.value)
-                          }
-                        />
-                      </TextContainer>
-                    </Meal>
-                  )}
-                </Draggable>
-              ))}
+                    </TextContainer>
+                  </Meal>
+                )}
+              </Draggable>
+            ))}
             {provided.placeholder}
           </MealsContainer>
         )}
       </Droppable>
+
       {addingMeal ? (
         <Meal>
           <StyledTextArea
             maxRows={8}
             ref={newMealInputRef}
             placeholder="Enter a new meal"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") e.currentTarget.blur();
-            }}
-            onBlur={saveNewMealName}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              setNewMealName(e.target.value)
-            }
+            value={newMealName}
+            onChange={(e) => setNewMealName(e.target.value)}
+            onBlur={saveNewMeal}
+            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
           />
         </Meal>
       ) : (

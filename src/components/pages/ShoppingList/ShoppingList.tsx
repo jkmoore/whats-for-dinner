@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import {
   DocumentData,
-  QueryDocumentSnapshot,
   QuerySnapshot,
   addDoc,
   collection,
   deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -18,79 +17,28 @@ import { User } from "firebase/auth";
 import { auth, firestore } from "services/firebase";
 import ShoppingListModal from "./ShoppingListModal";
 import ShoppingListList from "./ShoppingListList";
-import ShoppingListItem from "./ShoppingListItem";
+import ShoppingListItem, { ShoppingListItemDTO } from "./ShoppingListItem";
 import addIcon from "assets/icons/button-add-item.svg";
-
-const StyledHeader = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0rem;
-  margin: 0.5rem 0;
-  height: 2.5rem;
-`;
-
-const SearchBar = styled.input`
-  padding: 0.625rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  outline: none;
-  width: 100%;
-  margin-left: 0.5rem;
-  box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
-  font-size: 1rem;
-
-  ::placeholder {
-    color: #ccc;
-  }
-
-  &:focus {
-    outline: 0.1rem solid #ccc;
-  }
-`;
-
-const AddItemButton = styled.img`
-  height: 2rem;
-  width: 2rem;
-  cursor: pointer;
-  border-radius: 50%;
-  box-shadow: 0.13rem 0.13rem 0.25rem rgba(0, 0, 0, 0.2);
-  &:hover {
-    filter: brightness(95%);
-  }
-`;
-
-const StyledDiv = styled.div`
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  padding-left: 3rem;
-  padding-right: 3rem;
-  ${({ theme }) => theme.breakpoints.down("sm")} {
-    padding: 1rem;
-    font-size: 0.9rem;
-  }
-  ${({ theme }) => theme.breakpoints.up("xl")} {
-    padding-left: 8rem;
-    padding-right: 8rem;
-  }
-  ${({ theme }) => theme.breakpoints.up("xxl")} {
-    padding-left: 15rem;
-    padding-right: 15rem;
-  }
-`;
+import { firestoreDocToShoppingListItemDTO } from "utils/firestoreConverters";
+import {
+  AddItemButton,
+  SearchBar,
+  StyledDiv,
+  StyledHeader
+} from "styles/ItemList.styles";
 
 type ModalMode = "add" | "edit";
 
 export default function ShoppingList() {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [maxOrder, setMaxOrder] = useState<number>(0);
-  const [shoppingList, setShoppingList] = useState<DocumentData[]>([]);
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
+  const [maxOrder, setMaxOrder] = useState(0);
+  const [shoppingList, setShoppingList] = useState<ShoppingListItemDTO[]>([]);
+  const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>("add");
   const [itemToEdit, setItemToEdit] = useState<string | null>(null);
-  const [selectedItemData, setSelectedItemData] =
-    useState<ShoppingListItem | null>(null);
-  const [searchResults, setSearchResults] = useState<DocumentData[]>([]);
-  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [selectedItemData, setSelectedItemData] = useState<ShoppingListItem | null>(null);
+  const [searchResults, setSearchResults] = useState<ShoppingListItemDTO[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const user: User | null = auth.currentUser;
 
@@ -138,9 +86,9 @@ export default function ShoppingList() {
     }
   };
 
-  const handleDeleteItem = async (itemId: string | undefined) => {
+  const handleDeleteItem = async (itemId: string) => {
     try {
-      const itemRef = doc(collection(firestore, "shoppingList"), itemId);
+      const itemRef = doc(firestore, "shoppingList", itemId);
       await deleteDoc(itemRef);
       setShoppingList((prevShoppingList) =>
         prevShoppingList.filter((item) => item.id !== itemId)
@@ -150,14 +98,14 @@ export default function ShoppingList() {
     }
   };
 
-  const handleClickItem = (item: DocumentData) => {
+  const handleClickItem = (item: ShoppingListItemDTO) => {
     setModalMode("edit");
     setItemToEdit(item.id);
     setSelectedItemData({ name: item.name });
     setShowModal(true);
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const queryInputValue = event.target.value.trim().toLowerCase();
 
     if (queryInputValue) {
@@ -169,21 +117,14 @@ export default function ShoppingList() {
         where("lowercaseName", "<=", queryInputValue + "\uf8ff")
       );
 
-      onSnapshot(
-        searchRef,
-        (querySnapshot: QuerySnapshot<DocumentData>) => {
-          const results: DocumentData[] = [];
-          querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-            const result = { id: doc.id, ...doc.data() };
-            results.push(result);
-          });
-          const sortedResults = results.sort((a, b) => a.order - b.order);
-          setSearchResults(sortedResults);
-        },
-        (error) => {
-          console.error("Error searching shopping list:", error);
-        }
-      );
+      try {
+        const querySnapshot = await getDocs(searchRef);
+        const results = querySnapshot.docs.map(firestoreDocToShoppingListItemDTO);
+        const sortedResults = results.sort((a, b) => a.order - b.order);
+        setSearchResults(sortedResults);
+      } catch (error) {
+        console.error("Error searching shopping list:", error);
+      }
     } else {
       setIsSearching(false);
       setSearchResults([]);
@@ -221,19 +162,15 @@ export default function ShoppingList() {
     }
   };
 
-  const ListProps = {
-    items: isSearching ? searchResults : shoppingList,
-    onClickItem: handleClickItem,
-    onDeleteItem: handleDeleteItem,
-    onMoveItem: handleMoveItem,
-    isDndEnabled: !isSearching,
-  };
-
   useEffect(() => {
+    if (!user?.uid) {
+      return;
+    }
+
     const inventoryRef = query(
       collection(firestore, "shoppingList"),
       orderBy("order"),
-      where("userId", "==", user?.uid)
+      where("userId", "==", user.uid)
     );
 
     setLoading(true);
@@ -241,11 +178,7 @@ export default function ShoppingList() {
     const unsubscribe = onSnapshot(
       inventoryRef,
       (querySnapshot: QuerySnapshot<DocumentData>) => {
-        const items: DocumentData[] = [];
-        querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-          const item = { id: doc.id, ...doc.data() };
-          items.push(item);
-        });
+        const items = querySnapshot.docs.map(doc => firestoreDocToShoppingListItemDTO(doc));
         setShoppingList(items);
         const currentMaxOrder =
           items.length > 0 ? items[items.length - 1].order : 0;
@@ -295,7 +228,13 @@ export default function ShoppingList() {
       ) : shoppingList.length === 0 ? (
         <p>No items in your inventory.</p>
       ) : (
-        <ShoppingListList {...ListProps} />
+        <ShoppingListList
+          items={isSearching ? searchResults : shoppingList}
+          onClickItem={handleClickItem}
+          onDeleteItem={handleDeleteItem}
+          onMoveItem={handleMoveItem}
+          isDndEnabled={!isSearching}
+        />
       )}
     </StyledDiv>
   );

@@ -17,17 +17,18 @@ import {
   ErrorMessage,
   StyledText,
   StyledTextCenter,
-} from "components/common/StyledAuthForm";
+} from "styles/AuthForm.styles";
+import { ERROR_MESSAGES, UNKNOWN_ERROR_MESSAGE } from "constants/authErrors";
 import logo from "assets/images/logo-navbar.svg";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [verificationSent, setVerificationSent] = useState<boolean>(false);
-  const [showError, setShowError] = useState<boolean>(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
 
-  const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     setShowError(false);
     setVerificationSent(false);
     e.preventDefault();
@@ -41,34 +42,9 @@ export default function Signup() {
       await signOut(auth);
     } catch (error: any) {
       console.error(error);
-      const errorCode = error.code;
+      const message = ERROR_MESSAGES[error.code] || UNKNOWN_ERROR_MESSAGE;
       setShowError(true);
-      switch (errorCode) {
-        case "auth/email-already-in-use":
-          setErrorMessage(
-            "An account with that email address already exists. Please log in or choose a different email to sign up."
-          );
-          break;
-        case "auth/invalid-email":
-          setErrorMessage("Please enter a valid email address.");
-          break;
-        case "auth/weak-password":
-          setErrorMessage(
-            "Please enter a stronger password (at least 6 characters)."
-          );
-          break;
-        case "auth/missing-password":
-          setErrorMessage("Please enter a password.");
-          break;
-        case "auth/missing-email":
-          setErrorMessage("Please enter a valid email address.");
-          break;
-        default:
-          setErrorMessage(
-            "An unknown error occurred. Please wait a moment and try again."
-          );
-          break;
-      }
+      setErrorMessage(message);
     }
   };
 
@@ -88,7 +64,7 @@ export default function Signup() {
           src={logo}
           alt="What's for Dinner?"
         />
-        <StyledForm>
+        <StyledForm onSubmit={handleSignup}>
           <StyledInput
             id="email-address"
             type="email"
@@ -96,9 +72,7 @@ export default function Signup() {
             required
             placeholder="Email address"
             autoComplete="off"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEmail(e.target.value)
-            }
+            onChange={e => setEmail(e.target.value)}
           />
           <StyledInput
             id="password"
@@ -107,11 +81,9 @@ export default function Signup() {
             required
             placeholder="Password"
             autoComplete="off"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setPassword(e.target.value)
-            }
+            onChange={e => setPassword(e.target.value)}
           />
-          <SubmitButton type="submit" onClick={onSubmit}>
+          <SubmitButton type="submit">
             Sign up
           </SubmitButton>
         </StyledForm>

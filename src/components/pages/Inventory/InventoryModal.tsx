@@ -1,59 +1,13 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import InventoryItem from "./InventoryItem";
-
-const Background = styled.div`
-  background-color: rgba(0, 0, 0, 0.2);
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 900;
-`;
-
-const ModalWindow = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60%;
-  height: 80%;
-  background: white;
-  padding: 2rem;
-  color: black;
-  border-radius: 1rem;
-  z-index: 1000;
-`;
-
-const StyledForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-`;
-
-const StyledSpan = styled.span`
-  display: flex;
-  gap: 0.5rem;
-`;
-
-const StyledButton = styled.button<{ type: "button" | "submit" }>`
-  cursor: pointer;
-  width: 8rem;
-  border-radius: 0.25rem;
-  ${(props) =>
-    props.type === "submit"
-      ? `
-        background-color: #4285F4;
-        color: white;
-        border: none;
-      `
-      : `
-        background-color: white;
-        color: black;
-        border: 0.5px solid black;
-      `}
-`;
+import {
+  Background,
+  ModalWindow,
+  StyledButton,
+  StyledForm,
+  StyledSpan
+} from "styles/ItemModal.styles";
 
 const DateInput = styled.input`
   &::-webkit-calendar-picker-indicator {
@@ -108,9 +62,7 @@ export default function InventoryModal({
             value={newItem.name}
             required
             maxLength={50}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setNewItem({ ...newItem, name: e.target.value })
-            }
+            onChange={e => setNewItem({ ...newItem, name: e.target.value })}
           />
           <label htmlFor="expiration">Expiration Date</label>
           <DateInput
@@ -123,14 +75,9 @@ export default function InventoryModal({
                 ? newItem.expiration.toISOString().slice(0, 10)
                 : ""
             }
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const enteredDate = e.target.value
-                ? new Date(e.target.value)
-                : null;
-              setNewItem((prevItem) => ({
-                ...prevItem,
-                expiration: enteredDate,
-              }));
+            onChange={e => {
+              const enteredDate = e.target.value ? new Date(e.target.value) : null;
+              setNewItem((prevItem) => ({...prevItem, expiration: enteredDate}));
             }}
           />
           <StyledSpan>

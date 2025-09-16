@@ -135,17 +135,13 @@ export default function RecipeHeader({
             <input
               placeholder={"Recipe name (50 characters max)"}
               value={recipeName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setRecipeName(e.target.value)
-              }
+              onChange={e => setRecipeName(e.target.value)}
               maxLength={50}
             />
             <TypeTimeEditorContainer>
               <select
                 value={recipeType ? recipeType : ""}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                  onRecipeTypeChange(e.target.value)
-                }
+                onChange={e => onRecipeTypeChange(e.target.value)}
               >
                 <option value="">Select a recipe type</option>
                 <option value="main">Main</option>
@@ -155,18 +151,17 @@ export default function RecipeHeader({
               </select>
               <input
                 type="number"
-                placeholder={"Prep time (min)"}
-                value={recipeTime ? recipeTime : ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setRecipeTime(
-                    e.target.value ? parseInt(e.target.value) : null
-                  )
-                }
-                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  if (e.target.value.length > 3) {
-                    e.target.value = e.target.value.slice(0, 3);
+                placeholder="Prep time (min)"
+                value={recipeTime ?? ""}
+                onChange={e => {
+                  const value = e.target.value;
+                  if (value.length <= 3) {
+                    const num = parseInt(value);
+                    setRecipeTime(!isNaN(num) ? num : null);
                   }
                 }}
+                min={0}
+                max={999}
               />
             </TypeTimeEditorContainer>
           </HeaderEditorContainer>

@@ -35,15 +35,10 @@ interface MealsByDate {
   [date: string]: MealPlanItem[];
 }
 
-interface MaxOrdersByDate {
-  [date: string]: number;
-}
-
 export default function MealPlan() {
-  const [maxOrdersByDate, setMaxOrdersByDate] = useState<MaxOrdersByDate>({});
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [meals, setMeals] = useState<MealsByDate>({});
-  const [addingEnabled, setAddingEnabled] = useState<boolean>(true);
+  const [addingEnabled, setAddingEnabled] = useState(true);
   const user: User | null = auth.currentUser;
   const days: string[] = [];
   for (let i = 0; i < NUM_DAYS_ON_SCREEN; i++) {
@@ -52,11 +47,19 @@ export default function MealPlan() {
     days.push(date.toLocaleDateString());
   }
 
+  const getMaxOrderForDate = (date: string) => {
+    const mealsForDate = meals[date] || [];
+    if (mealsForDate.length === 0) {
+      return 0;
+    }
+    return Math.max(...mealsForDate.map((m) => m.order));
+  };
+
   const handleAddItem = async (name: string, date: string) => {
     await addDoc(collection(firestore, "mealPlan"), {
       name: name,
       date: date,
-      order: maxOrdersByDate[date] ? maxOrdersByDate[date] + 1 : 1,
+      order: getMaxOrderForDate(date) + 1,
       userId: user?.uid,
     }).catch((error) => {
       console.error("Error adding item:", error);
@@ -87,47 +90,43 @@ export default function MealPlan() {
   };
 
   const handleMoveItem = async (
-    itemId: string,
-    sourceDate: string,
-    destDate: string,
-    sourceIndex: number,
-    destIndex: number
-  ) => {
-    if (!meals[sourceDate]) {
-      return;
-    }
-    const currentMealsByDate = JSON.parse(JSON.stringify(meals));
-    const updatedMealsByDate = JSON.parse(JSON.stringify(meals));
-    const [movedItem] = updatedMealsByDate[sourceDate].splice(sourceIndex, 1);
-    if (!updatedMealsByDate[destDate]) {
-      updatedMealsByDate[destDate] = [];
-    }
-    updatedMealsByDate[destDate].splice(destIndex, 0, movedItem);
-    setMeals(updatedMealsByDate);
-    const updatedOrders = updatedMealsByDate[destDate].map(
-      (item: MealPlanItem, index: number) => ({
-        id: item.id,
-        order: index,
-      })
+  itemId: string,
+  sourceDate: string,
+  destDate: string,
+  sourceIndex: number,
+  destIndex: number
+) => {
+  if (!meals[sourceDate]) {
+    return;
+  }
+  const currentMealsByDate: MealsByDate = JSON.parse(JSON.stringify(meals));
+  const updatedMealsByDate: MealsByDate = JSON.parse(JSON.stringify(meals));
+  const [movedItem] = updatedMealsByDate[sourceDate].splice(sourceIndex, 1);
+  if (!updatedMealsByDate[destDate]) {
+    updatedMealsByDate[destDate] = [];
+  }
+  updatedMealsByDate[destDate].splice(destIndex, 0, movedItem);
+  setMeals(updatedMealsByDate);
+
+  const updatedOrders = updatedMealsByDate[destDate].map((item, index) => ({
+    id: item.id,
+    order: index,
+  }));
+
+  try {
+    await Promise.all(
+      updatedOrders.map(({ id, order }) =>
+        updateDoc(
+          doc(firestore, "mealPlan", id),
+          id === itemId ? { order, date: destDate } : { order }
+        )
+      )
     );
-    try {
-      await Promise.all(
-        updatedOrders.map(({ id, order }: { id: string; order: number }) => {
-          if (id === itemId) {
-            return updateDoc(doc(firestore, "mealPlan", id), {
-              order: order,
-              date: destDate,
-            });
-          } else {
-            return updateDoc(doc(firestore, "mealPlan", id), { order: order });
-          }
-        })
-      );
-    } catch (error) {
-      console.error("Error updating orders in Firestore:", error);
-      setMeals(currentMealsByDate);
-    }
-  };
+  } catch (error) {
+    console.error("Error updating orders in Firestore:", error);
+    setMeals(currentMealsByDate);
+  }
+};
 
   const onDragStart = () => {
     setAddingEnabled(false);
@@ -182,16 +181,6 @@ export default function MealPlan() {
           }
         });
         setMeals(newMeals);
-        Object.keys(newMeals).forEach((date) => {
-          const maxOrderOnDate =
-            newMeals[date].length > 0
-              ? newMeals[date][newMeals[date].length - 1].order
-              : 0;
-          setMaxOrdersByDate((prevState) => ({
-            ...prevState,
-            [date]: maxOrderOnDate,
-          }));
-        });
         setLoading(false);
       },
       (error) => {
