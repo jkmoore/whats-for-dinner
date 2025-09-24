@@ -1,13 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
-  User,
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  signOut,
-} from "firebase/auth";
-import { auth } from "services/firebase";
-import {
   StyledFormBackground,
   StyledFormContainer,
   StyledInput,
@@ -18,8 +11,8 @@ import {
   StyledText,
   StyledTextCenter,
 } from "styles/AuthForm.styles";
-import { ERROR_MESSAGES, UNKNOWN_ERROR_MESSAGE } from "constants/authErrors";
 import logo from "assets/images/logo-navbar.svg";
+import { registerUser, sendVerificationEmail, signOutUser } from "services/auth";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -27,33 +20,35 @@ export default function Signup() {
   const [verificationSent, setVerificationSent] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setShowError(false);
     setVerificationSent(false);
-    e.preventDefault();
+    setErrorMessage(null);
+    setLoading(true);
+    const registrationResult = await registerUser(email, password);
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      await sendVerification(userCredential.user);
-      await signOut(auth);
-    } catch (error: any) {
-      console.error(error);
-      const message = ERROR_MESSAGES[error.code] || UNKNOWN_ERROR_MESSAGE;
-      setShowError(true);
-      setErrorMessage(message);
-    }
-  };
-
-  const sendVerification = async (user: User) => {
-    try {
-      await sendEmailVerification(user);
-      setVerificationSent(true);
+      if (registrationResult.success && registrationResult.user) {
+        const emailSent = await sendVerificationEmail(registrationResult.user);
+        if (emailSent) {
+          setVerificationSent(true);
+          await signOutUser();
+        } else {
+          setErrorMessage("Your account was created, but a verification email could not be sent. Please try logging in with your new account and a new verification email will be sent at that time.");
+          setShowError(true);
+        }
+      } else if (registrationResult.error) {
+        setShowError(true);
+        setErrorMessage(registrationResult.error);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Signup process encountered an unexpected error:", error);
+      setShowError(true);
+      setErrorMessage("An unexpected error occurred during signup. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,8 +78,8 @@ export default function Signup() {
             autoComplete="off"
             onChange={e => setPassword(e.target.value)}
           />
-          <SubmitButton type="submit">
-            Sign up
+          <SubmitButton type="submit" disabled={loading}>
+            {loading ? "Signing up..." : "Sign up"}
           </SubmitButton>
         </StyledForm>
         {showError && <ErrorMessage>{errorMessage}</ErrorMessage>}
